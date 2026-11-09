@@ -1,6 +1,6 @@
 {
   "name": "event-atlas",
-  "version": "1.5.10",
+  "version": "1.5.11",
   "private": true,
   "description": "Audit event website lintas platform dan petakan halaman serta elemen pemicunya",
   "type": "module",

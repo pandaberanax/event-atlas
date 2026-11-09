@@ -12,10 +12,12 @@ import {pageEvents} from './report-runtime.mjs';
 import {auditTriggers} from './dist/triggers.js';
 import {createManualLive} from './manual-live.mjs';
 import {createAndroidAudit, handleAndroid} from './android-audit.mjs';
+import {createWebsiteMap} from './website-map.mjs';
 const dir = path.dirname(fileURLToPath(import.meta.url));
 const token = randomBytes(24).toString('hex');
 const manualLive = createManualLive(token);
 const android = createAndroidAudit();
+const websiteMap = createWebsiteMap();
 const reportRoot=process.env.EVENT_ATLAS_REPORT_DIR||path.join(dir,'reports');
 const checkpointRoot=path.join(reportRoot,'checkpoints');
 let report=null, active=false, controller,writer;
@@ -35,6 +37,23 @@ const server=http.createServer(async(req,res)=>{
     if (req.headers['x-atlas-token']!==token) return json(403,{error:'androidForbidden'});
     return handleAndroid(android,req,requestUrl,json);
   }
+  if (pathname.startsWith('/api/website-map/')) {
+    if (req.headers['x-atlas-token']!==token) return json(403,{error:'mapLocalRequired'});
+    if (req.method==='GET' && pathname==='/api/website-map/status') {
+      return json(200,{active:websiteMap.active,report:websiteMap.report || null});
+    }
+    if (req.method==='POST' && pathname==='/api/website-map/stop') {websiteMap.stop();return json(200,{ok:true});}
+    if (req.method==='POST' && pathname==='/api/website-map/start') {
+      if (active) return json(409,{error:'mapAuditBusy'});
+      try {
+        let body='';
+        for await (const chunk of req) {body+=chunk;if(body.length>16384)return json(413,{error:'mapInvalidUrl'});}
+        websiteMap.start(JSON.parse(body));
+        return json(202,{ok:true});
+      } catch (error) {return json(error.status||400,{error:error.status?error.message:'mapInvalidUrl'});}
+    }
+    return json(404,{error:'mapInvalidUrl'});
+  }
   if (pathname==='/api/status') {
     if(report && requestUrl.searchParams.get('reportId')===report.id){
       const since=Math.max(0,Number(requestUrl.searchParams.get('revision')) || 0);
@@ -46,7 +65,7 @@ const server=http.createServer(async(req,res)=>{
   }
   if (pathname==='/api/stop' && req.method==='POST') {controller?.abort();return json(200,{ok:true});}
   if ((pathname==='/api/audit'||pathname==='/api/resume') && req.method==='POST') {
-    if(active)return json(409,{error:'Audit masih berjalan.'});
+    if(active||websiteMap.active)return json(409,{error:'mapAuditBusy'});
     try {
       let body='';for await(const chunk of req){body+=chunk;if(body.length>270*1024*1024)return json(413,{error:'Request terlalu besar'});}
       const options=JSON.parse(body);
@@ -76,6 +95,6 @@ const bindHost = process.env.EVENT_ATLAS_DOCKER === '1' ? '0.0.0.0' : '127.0.0.1
 server.listen(Number(process.env.PORT)||4318,bindHost,()=>console.log(`Event Atlas siap: http://127.0.0.1:${server.address().port}`));
 for (const name of ['SIGINT','SIGTERM']) process.once(name, () => {
   controller?.abort();
-  Promise.allSettled([writer?.flush(),android.shutdown()]).finally(() => server.close());
+  Promise.allSettled([writer?.flush(),android.shutdown(),websiteMap.shutdown()]).finally(() => server.close());
   setTimeout(() => process.exit(),10000).unref();
 });

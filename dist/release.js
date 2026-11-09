@@ -1,5 +1,5 @@
-export const VERSION = '1.5.10';
-export const RELEASE_DATE = '2026-11-06';
+export const VERSION = '1.5.11';
+export const RELEASE_DATE = '2026-11-09';
 export const SPEED_PROFILES = {
   balanced: {concurrency:2,waitMs:1800},
   fast: {concurrency:3,waitMs:900},
@@ -8,6 +8,10 @@ export const SPEED_PROFILES = {
 };
 export const CHANGELOG = [
  {version:VERSION,date:RELEASE_DATE,changes:{
+  id:['Tambahkan workspace Website Map untuk menemukan URL melalui sitemap dan link internal.','Jelajahi path subfolder lewat grafik interaktif, starting point, jumlah URL, dan tabel yang mengikuti pilihan.','Filter hasil, unduh CSV atau grafik SVG, simpan dan impor JSON, serta siapkan audit event satu URL.'],
+  en:['Add the Website Map workspace to discover URLs through sitemaps and internal links.','Explore subfolder paths with an interactive graph, starting points, URL counts, and a linked table.','Filter results, download CSV or SVG, save and import JSON, and set up a single-URL event audit.']
+ }},
+ {version:'1.5.10',date:'2026-11-06',changes:{
   id:['Tambahkan opsi Firebase DebugView dan log diagnostik Android untuk FA, FA-SVC, Google Tag Manager, dan MoEngage.','Simpan nilai parameter Android yang lebih panjang, baca Bundle Firebase bersarang, dan tampilkan semua data yang tersimpan di rincian dan JSON.'],
   en:['Add optional Firebase DebugView and Android diagnostic logs for FA, FA-SVC, Google Tag Manager, and MoEngage.','Keep longer Android parameter values, read nested Firebase bundles, and show all saved data in details and JSON.']
  }},

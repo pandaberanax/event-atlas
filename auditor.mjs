@@ -32,7 +32,7 @@ export function normalizeUrl(value, base, exact=false) {
 
 export {parseCollect};
 
-async function loadBrowser() {
+export async function loadBrowser() {
   let pw;
   try { pw = await import('playwright'); }
   catch (err) {
