@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Audit website events across analytics platforms. Event Atlas."><title>Event Atlas · Website Event Audit</title><link rel="icon" href="atlas.svg" type="image/svg+xml"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="enhancements.css"><link rel="stylesheet" href="platforms.css"><link rel="stylesheet" href="scope.css"><link rel="stylesheet" href="optimization.css"><link rel="stylesheet" href="timeline.css"></head>
+<body>
+<aside class="sidebar">
+ <a class="brand" href="#"><span class="brand-mark">⌘</span>event<span>atlas</span><small>ANALYTICS WORKSPACE</small></a>
+ <div class="workspace"><span class="workspace-icon">◎</span><div><strong data-i18n="workspaceTitle"></strong><small data-i18n="workspaceSubtitle"></small></div><span class="dot"></span></div>
+ <div class="nav-label">WORKSPACE</div>
+ <nav data-i18n-aria="pageFilter"><button class="nav active" data-tab="events"><span>▦</span><span class="nav-text" data-i18n="navEvents"></span><i id="navCount">0</i></button><button class="nav" data-tab="pages"><span>▤</span><span class="nav-text" data-i18n="navPages"></span></button><button class="nav" data-tab="timeline" data-i18n-aria="navTimeline"><span>◷</span><span class="nav-text" data-i18n="navTimeline"></span></button><button class="nav" data-tab="guide"><span>⌁</span><span class="nav-text" data-i18n="navGuide"></span></button><button class="nav" data-tab="changes"><span>↺</span><span class="nav-text" data-i18n="navChanges"></span></button></nav>
+ <div class="sidebar-bottom"><div class="tiny-chart"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><strong data-i18n="tagline"></strong><p data-i18n="taglineBody"></p><button class="version" id="versionLink">EVENT ATLAS <b class="app-version"></b></button></div>
+</aside>
+<div class="shell"><header class="topbar"><div><span class="breadcrumb">Workspace</span><span class="slash">/</span><strong data-i18n="auditTitle"></strong></div><div class="topbar-tools"><span class="badge subtle app-version"></span><label class="language-picker"><span data-i18n="language"></span><select id="language" data-i18n-aria="language"><option value="id">Indonesia</option><option value="en">English</option></select></label></div></header>
+<main>
+ <section class="page-heading"><div><div class="eyebrow">MEASUREMENT INTELLIGENCE</div><h1 data-i18n="headline"></h1><p data-i18n="subtitle"></p></div><button class="button secondary" id="importBtn">↥ <span data-i18n="import"></span></button><input id="importFile" type="file" accept=".json,application/json" hidden></section>
+ <section class="audit-card"><div class="audit-title"><span class="scope-icon">◎</span><div><h2 data-i18n="scopeTitle"></h2><p data-i18n="scopeBody"></p></div><span class="badge subtle" data-i18n="multiPlatform"></span></div>
+  <form id="auditForm"><div class="scope-controls"><label><span data-i18n="auditScope"></span><select id="scope" data-i18n-aria="auditScope"><option value="site" data-i18n="scopeSite"></option><option value="single" data-i18n="scopeSingle"></option></select></label><p id="scopeHelp"></p></div><div class="url-field"><span>URL</span><input id="domain" data-i18n-aria="domain" placeholder="example.com" required></div><button class="button primary" id="startBtn" type="submit"><span data-i18n="start"></span> ↗</button><button class="button danger" id="stopBtn" type="button" data-i18n="stop" hidden></button>
+   <div class="audit-settings"><label><span data-i18n="maxPages"></span><select id="maxPages"></select></label><label><span data-i18n="maxElements"></span><select id="maxElements"></select></label><label><span data-i18n="consent"></span><select id="consent"><option value="unchanged" data-i18n="consentUnchanged"></option><option value="accept" data-i18n="consentAccept"></option></select></label><label><span data-i18n="speed"></span><select id="speed"><option value="balanced" data-i18n="balanced"></option><option value="fast" data-i18n="fast"></option><option value="express" data-i18n="express"></option><option value="thorough" data-i18n="thorough"></option></select></label></div>
+   <fieldset class="platform-selection"><legend data-i18n="platformSelection"></legend><div id="platformChoices"></div><p data-i18n="platformHelp"></p></fieldset><fieldset class="platform-selection"><legend data-i18n="triggerSelection"></legend><div id="triggerChoices"></div><p data-i18n="triggerSelectionHelp"></p></fieldset><p class="setting-help" id="speedHelp"></p><details class="consent-explanation"><summary data-i18n="consent"></summary><p data-i18n="consentHelp"></p></details>
+   <details class="optimizations"><summary data-i18n="optimizationTitle"></summary><div class="optimization-options"><label><span data-i18n="resetPolicy"></span><select id="resetPolicy"><option value="isolated" data-i18n="isolatedMode"></option><option value="smart" data-i18n="smartMode"></option></select></label><label><input type="checkbox" id="assetCache" checked><span data-i18n="assetCache"></span></label></div><p data-i18n="optimizationHelp"></p></details>
+  </form>
+  <div class="run-information"><div id="connection" class="connection"><span class="dot muted"></span><span data-i18n="engineCheck"></span></div><div class="timer"><span id="timerLabel" data-i18n="elapsed"></span><output id="auditTimer" aria-live="off">00:00:00</output></div></div>
+  <div class="settings-note standalone">◈ <span data-i18n="held"></span></div>
+  <div id="progress" class="progress" hidden><div class="progress-line"><span id="progressText"></span><span id="progressCount"></span></div><div class="progress-track"><div id="progressBar"></div></div></div>
+  <div id="runDetails" class="run-details" hidden><span id="eta"></span><span id="checkpointStatus"></span><details><summary data-i18n="performanceTitle"></summary><p id="performanceText"></p></details></div>
+  <div class="resume-card" id="resumeCard" hidden><div><strong data-i18n="resumeTitle"></strong><p id="resumeHelp"></p></div><button type="button" class="button secondary small" id="resumeBtn" data-i18n="resume"></button></div>
+  <div class="notice" id="notice" role="status" hidden></div><div class="notice" id="engineNotice" hidden></div>
+ </section>
+ <div class="report-strip"><div><span class="dot" id="reportDot"></span><strong id="reportName"></strong><span id="reportDate"></span></div><div><small id="reportVersion"></small><span id="reportStatus" class="badge subtle"></span></div></div>
+ <section class="metrics" data-i18n-aria="navEvents"><div class="metric"><span><span id="statPagesLabel" data-i18n="statPages"></span><i>↗</i></span><strong id="statPages">—</strong><small id="pagesHint"></small></div><div class="metric"><span><span data-i18n="statEvents"></span><i>⌁</i></span><strong id="statEvents">—</strong><small data-i18n="networkHint"></small></div><div class="metric"><span><span id="statElementsLabel" data-i18n="statElements"></span><i>⌖</i></span><strong id="statElements">—</strong><small data-i18n="elementsHint"></small></div><button class="metric review-metric" id="issuesCard"><span><span data-i18n="statIssues"></span><i>↗</i></span><strong id="statIssues">—</strong><small data-i18n="issuesHint"></small><small id="issuesHint"></small></button></section>
+ <section id="eventsView" class="view"><div class="section-heading"><div><h2><span data-i18n="navEvents"></span><span class="count" id="eventCount">0</span></h2><p data-i18n="eventsDescription"></p></div><div class="exports"><button class="text-button" id="jsonExport">↓ JSON</button><button class="button secondary small" id="csvExport">↓ <span data-i18n="exportCsv"></span></button></div></div>
+  <div class="table-card"><div class="table-toolbar"><div class="filter-tabs" role="group" data-i18n-aria="evidence"><button class="selected" data-source="all" data-i18n="allEvidence"></button><button data-source="network" data-i18n="network"></button><button data-source="sdk" data-i18n="sdkCall"></button><button data-source="dataLayer">dataLayer</button></div><label class="result-platform"><span data-i18n="platform"></span><select id="resultPlatform" data-i18n-aria="platform"></select></label><label class="search"><span>⌕</span><input id="search" data-i18n-placeholder="search" data-i18n-aria="searchLabel"></label></div>
+   <div class="explorer-controls"><label><span data-i18n="eventView"></span><select id="eventView"><option value="groups" data-i18n="groupView"></option><option value="observations" data-i18n="rawView"></option></select></label><label><span data-i18n="category"></span><select id="category"><option value="all" data-i18n="allCategories"></option><option value="page" data-i18n="categoryPage"></option><option value="interaction" data-i18n="categoryInteraction"></option><option value="navigation" data-i18n="categoryNavigation"></option><option value="other" data-i18n="categoryOther"></option></select></label><button id="clearGroup" class="text-button" data-i18n="clearGroup" hidden></button></div>
+   <div class="table-scroll"><table class="events-table"><thead><tr id="eventHeaders"></tr></thead><tbody id="eventsBody"></tbody></table></div><div class="empty" id="eventsEmpty"><span class="empty-icon">⌖</span><h3></h3><p></p><button class="text-button" id="guideBtn"><span data-i18n="guideLink"></span> ↗</button></div><footer class="table-footer"><span id="tableCount"></span><div><button id="prev" class="pager" data-i18n-aria="prev">←</button><span id="pageNumber">1 / 1</span><button id="next" class="pager" data-i18n-aria="next">→</button></div></footer></div>
+  <div class="evidence-note"><span>ⓘ</span><p id="evidenceNote" data-i18n="evidenceNote"></p></div>
+ </section>
+ <section id="pagesView" class="view" hidden><div class="section-heading"><div><h2 data-i18n="navPages"></h2><p data-i18n="pagesDescription"></p></div><div class="exports page-exports"><button class="button secondary small" id="pagesCsvAll" data-i18n="pagesCsvAll"></button><button class="button secondary small" id="pagesCsvFiltered" data-i18n="pagesCsvFiltered"></button></div></div><div id="coverage" class="coverage"></div><div id="reviewSummary" class="review-summary"></div><div class="table-card"><div class="table-toolbar"><label class="page-filter"><span data-i18n="pageFilter"></span><select id="pageFilter"><option value="all" data-i18n="allPages"></option><option value="attention" data-i18n="attentionPages"></option><option value="failed" data-i18n="failedPages"></option><option value="runtime" data-i18n="runtimePages"></option><option value="actions" data-i18n="actionPages"></option><option value="skipped" data-i18n="skippedPages"></option></select></label><label class="search"><span>⌕</span><input id="pageSearch" data-i18n-placeholder="pageSearch" data-i18n-aria="pageSearchLabel"></label></div><div class="table-scroll"><table class="pages-table"><thead><tr><th data-i18n="colPage"></th><th data-i18n="colStatus"></th><th data-i18n="colTags"></th><th data-i18n="colElements"></th><th data-i18n="colNotes"></th></tr></thead><tbody id="pagesBody"></tbody></table></div><div class="empty" id="pagesEmpty" hidden><p data-i18n="noPages"></p></div><footer class="table-footer"><span id="pageTableCount"></span><div><button class="pager" id="pagePrev" data-i18n-aria="prev">←</button><span id="pageTableNumber"></span><button class="pager" id="pageNext" data-i18n-aria="next">→</button></div></footer></div><div class="limits"><h3 data-i18n="limitsTitle"></h3><ul id="limitations"></ul></div></section>
+ <section id="timelineView" class="view" hidden>
+  <div class="section-heading"><div><h2 data-i18n="navTimeline"></h2><p id="timelineSubtitle" data-i18n="timelineSubtitle"></p></div></div>
+  <details class="timeline-howto table-card" id="timelineHowTo">
+   <summary><span><strong data-i18n="timelineHowTo"></strong><small data-i18n="timelineHowToSummary"></small></span></summary>
+   <ol>
+    <li><strong data-i18n="timelineInstallTitle"></strong><p data-i18n="timelineInstallStep"></p></li>
+    <li><strong data-i18n="timelinePairTitle"></strong><p data-i18n="timelinePairStep"></p></li>
+    <li><strong data-i18n="timelineRecordTitle"></strong><p data-i18n="timelineRecordStep"></p></li>
+   </ol>
+   <p class="timeline-howto-note" data-i18n="timelineHowToJson"></p>
+  </details>
+  <div class="table-card timeline-controls">
+   <div class="table-toolbar">
+    <label class="page-filter"><span data-i18n="timelineSource"></span><select id="timelineSource"><option value="live" data-i18n="timelineLive"></option><option value="android" data-i18n="androidSource"></option><option id="timelineFile" value="file" data-i18n="timelineJson" disabled></option></select></label>
+    <label class="page-filter"><span data-i18n="timelineActivityFilter"></span><select id="timelineActivityFilter"><option value="all" data-i18n="timelineAllActivities"></option></select></label>
+    <label class="page-filter" id="timelineAndroidPlatformField" hidden><span data-i18n="platform"></span><select id="timelineAndroidPlatform"><option value="all" data-i18n="allPlatforms"></option><option value="ga4">GA4 / Firebase</option><option value="moengage">MoEngage</option><option value="gtm">Google Tag Manager</option></select></label>
+   </div>
+  </div>
+  <section id="androidControls" class="limits android-controls" hidden>
+   <h3 data-i18n="androidTitle"></h3>
+   <p data-i18n="androidHelp"></p>
+   <details><summary data-i18n="androidSetup"></summary><ol><li data-i18n="androidSetupAdb"></li><li data-i18n="androidSetupDevice"></li><li data-i18n="androidSetupRun"></li></ol></details>
+   <div class="android-fields">
+    <label><span data-i18n="androidDeviceLabel"></span><select id="androidDevice"><option value="" data-i18n="androidChooseDevice"></option></select></label>
+    <label><span data-i18n="androidPackageLabel"></span><select id="androidPackage"><option value="" data-i18n="androidChoosePackage"></option></select></label>
+   </div>
+   <div class="android-debug-options">
+    <div>
+     <label><input id="androidFirebaseDebug" type="checkbox" aria-describedby="androidFirebaseDebugHelp"><span data-i18n="androidFirebaseDebug"></span></label>
+     <p id="androidFirebaseDebugHelp" data-i18n="androidFirebaseDebugHelp"></p>
+    </div>
+    <div>
+     <label><input id="androidDiagnostics" type="checkbox" aria-describedby="androidDiagnosticsHelp"><span data-i18n="androidDiagnostics"></span></label>
+     <p id="androidDiagnosticsHelp" data-i18n="androidDiagnosticsHelp"></p>
+    </div>
+   </div>
+   <div class="android-actions">
+    <button id="androidRefresh" type="button" class="button secondary small" data-i18n="androidRefresh"></button>
+    <button id="androidStart" type="button" class="button primary small" data-i18n="androidStart" disabled></button>
+    <button id="androidStop" type="button" class="button secondary small" data-i18n="androidStop" disabled></button>
+    <button id="androidExport" type="button" class="button secondary small" data-i18n="androidExport" disabled></button>
+   </div>
+   <form id="androidMarkForm" class="android-mark" hidden>
+    <label><span data-i18n="androidMarker"></span><select id="androidMarkType"><option value="screen" data-i18n="timelineType_screen"></option><option value="tap" data-i18n="timelineType_tap"></option></select></label>
+    <label><span data-i18n="androidMarkerLabel"></span><input id="androidMarkLabel" type="text" maxlength="160" required data-i18n-placeholder="androidMarkerHint"></label>
+    <button type="submit" class="button secondary small" data-i18n="androidAddMarker"></button>
+   </form>
+   <p id="androidNotice" class="android-notice" role="status" hidden></p>
+   <p id="androidCounts" class="android-counts" hidden></p>
+   <p id="androidWaiting" data-i18n="androidWaiting" hidden></p>
+  </section>
+  <div class="limits timeline-setup" id="timelinePairing">
+   <div><h3 data-i18n="timelineConnect"></h3><p data-i18n="timelineConnectHelp"></p></div>
+   <div class="timeline-pair"><input id="timelineKey" type="text" readonly autocomplete="off" spellcheck="false" data-i18n-aria="timelinePairingCode"><button class="button secondary small" id="timelineCopy" type="button" data-i18n="timelineCopy" disabled></button><span id="timelineCopyFeedback" role="status"></span></div>
+  </div>
+  <div class="table-card timeline-feed">
+   <div class="table-toolbar"><div class="timeline-session"><span id="timelineStatus" class="badge subtle" role="status"></span><span id="timelineRoot"></span></div><span class="table-sub" data-i18n="timelineLatest"></span></div>
+   <div class="table-scroll"><table><thead><tr><th data-i18n="timelineTime"></th><th data-i18n="timelineActivity"></th><th data-i18n="platform"></th><th id="timelineLocationHeader" data-i18n="pageLabel"></th><th data-i18n="timelineDetail"></th></tr></thead><tbody id="timelineRows"></tbody></table></div>
+   <div class="empty" id="timelineEmpty"><p data-i18n="timelineEmpty"></p></div>
+   <footer class="table-footer"><span id="timelineCount"></span><div><button class="pager" id="timelineNewer" data-i18n-aria="timelineNewer">←</button><span id="timelinePage"></span><button class="pager" id="timelineOlder" data-i18n-aria="timelineOlder">→</button></div></footer>
+  </div>
+ </section>
+ <section id="guideView" class="view" hidden><div class="section-heading"><div><h2 data-i18n="guideTitle"></h2><p data-i18n="guideSubtitle"></p></div><a id="runnerDownload" class="button primary" href="event-atlas-runner.zip" download></a></div><div class="guide-grid"><article class="guide-step"><span>01</span><h3 data-i18n="setupTitle"></h3><p data-i18n="setupBody"></p><a href="https://nodejs.org/" target="_blank" rel="noreferrer">Node.js ↗</a><pre>npm install
+npx playwright install chromium</pre></article><article class="guide-step"><span>02</span><h3 data-i18n="openTitle"></h3><p data-i18n="openBody"></p><pre>npm start</pre><a href="http://127.0.0.1:4318/" target="_blank" rel="noreferrer"><span data-i18n="openLocal"></span> ↗</a></article><article class="guide-step"><span>03</span><h3 data-i18n="exploreTitle"></h3><p data-i18n="exploreBody"></p></article></div><div class="limits"><h3 data-i18n="manualTitle"></h3><p data-i18n="manualGuide"></p><h3 data-i18n="updateTitle"></h3><p data-i18n="updateBody"></p><h3 data-i18n="knowTitle"></h3><p data-i18n="knowBody"></p><code>npm run audit -- --url https://example.com --platforms ga4,dataLayer,moengage,braze,mixpanel --pages 100 --speed balanced</code></div></section>
+ <section id="changesView" class="view" hidden><div class="section-heading"><div><h2 data-i18n="changesTitle"></h2><p data-i18n="changesSubtitle"></p></div><span class="badge subtle" data-i18n="development"></span></div><div id="changelog"></div></section>
+ <footer class="page-footer"><span><b>event atlas</b> <span class="app-version"></span> / website event audit</span><span class="footer-credit" data-i18n="footerCredit"></span><span data-i18n="footer"></span></footer>
+</main></div>
+<dialog id="detail"><div class="drawer-header"><div><div class="eyebrow" id="detailType" data-i18n="observation"></div><h2 id="detailName"></h2></div><button id="closeDetail" class="icon-button" data-i18n-aria="close">×</button></div><div id="detailBody"></div></dialog><dialog id="timelineDetailsDialog" aria-labelledby="timelineDetailsTitle"><div class="drawer-header"><div><div class="eyebrow" id="timelineDetailsKind"></div><h2 id="timelineDetailsTitle"></h2></div><button id="closeTimelineDetails" class="icon-button" type="button" data-i18n-aria="close">×</button></div><div id="timelineDetailsBody"></div></dialog><div id="toast" role="status" hidden></div><script type="module" src="app.js"></script>
+</body></html>
