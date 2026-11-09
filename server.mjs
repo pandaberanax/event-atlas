@@ -17,8 +17,9 @@ const dir = path.dirname(fileURLToPath(import.meta.url));
 const token = randomBytes(24).toString('hex');
 const manualLive = createManualLive(token);
 const android = createAndroidAudit();
-const websiteMap = createWebsiteMap();
 const reportRoot=process.env.EVENT_ATLAS_REPORT_DIR||path.join(dir,'reports');
+const websiteMap = createWebsiteMap(path.join(reportRoot,'website-map'));
+await websiteMap.restore();
 const checkpointRoot=path.join(reportRoot,'checkpoints');
 let report=null, active=false, controller,writer;
 try{report=await readCheckpoint(checkpointRoot);}catch{}
@@ -40,15 +41,21 @@ const server=http.createServer(async(req,res)=>{
   if (pathname.startsWith('/api/website-map/')) {
     if (req.headers['x-atlas-token']!==token) return json(403,{error:'mapLocalRequired'});
     if (req.method==='GET' && pathname==='/api/website-map/status') {
-      return json(200,{active:websiteMap.active,report:websiteMap.report || null});
+      return json(200,{active:websiteMap.active,report:websiteMap.report || null,history:websiteMap.history(),warning:websiteMap.warning});
+    }
+    if(req.method==='GET' && pathname==='/api/website-map/report'){
+      try{return json(200,{report:await websiteMap.read(requestUrl.searchParams.get('id'))});}
+      catch{return json(404,{error:'mapRestoreError'});}
     }
     if (req.method==='POST' && pathname==='/api/website-map/stop') {websiteMap.stop();return json(200,{ok:true});}
-    if (req.method==='POST' && pathname==='/api/website-map/start') {
+    if (req.method==='POST' && ['/api/website-map/start','/api/website-map/resume'].includes(pathname)) {
       if (active) return json(409,{error:'mapAuditBusy'});
       try {
         let body='';
-        for await (const chunk of req) {body+=chunk;if(body.length>16384)return json(413,{error:'mapInvalidUrl'});}
-        websiteMap.start(JSON.parse(body));
+        const limit=pathname.endsWith('/resume')?64*1024*1024:16384;
+        for await (const chunk of req) {body+=chunk;if(body.length>limit)return json(413,{error:'mapInvalidReport'});}
+        if(pathname.endsWith('/resume'))websiteMap.resume(JSON.parse(body));
+        else websiteMap.start(JSON.parse(body));
         return json(202,{ok:true});
       } catch (error) {return json(error.status||400,{error:error.status?error.message:'mapInvalidUrl'});}
     }

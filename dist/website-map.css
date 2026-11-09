@@ -15,23 +15,27 @@
 #mapRoot { overflow-wrap:anywhere; }
 .map-duration { margin-left:auto; font-variant-numeric:tabular-nums; }
 .map-duration output { font-weight:700; margin-left:8px; }
-.map-metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:20px; }
-.map-metrics article { padding:18px 22px; }
+.map-metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:12px; margin-bottom:20px; }
+.map-metrics button { padding:16px; text-align:left; font:inherit; color:inherit; }
+.map-metrics button:hover { border-color:#93b1db; }
 .map-metrics span { font-size:12px; color:#61746a; }
 .map-metrics strong { display:block; font-size:30px; margin-top:8px; color:#1d4935; }
 .map-graph-toolbar,.map-table-toolbar { display:flex; gap:12px 20px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
 .map-graph-toolbar h2 { font-size:18px; margin:0; }
 .map-graph-options { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
-.map-graph { overflow:auto; min-height:200px; padding-top:10px; }
+.map-graph { overflow:auto; min-height:200px; max-height:680px; padding-top:10px; cursor:grab; overscroll-behavior:contain; }
+.map-graph.dragging { cursor:grabbing; user-select:none; }
 .map-graph svg { display:block; max-width:none; }
-.map-flow { fill:#dfeadf; fill-opacity:.7; }
-.map-node-bar { fill:#4d8b69; }
-.map-node-more { fill:#b7cda1; }
+.map-flow { fill-opacity:.42; transition:fill-opacity .12s; }
+.map-flow.map-route { fill-opacity:.72; }
+.map-highlighting .map-flow:not(.map-highlight) { fill-opacity:.08; }
+.map-highlighting .map-flow.map-highlight { fill-opacity:.8; }
+.map-highlighting .map-graph-node:not(.map-highlight) { opacity:.35; }
 .map-column-heading { fill:#61746a; font-size:11px; letter-spacing:.7px; }
 .map-node-label { fill:#234c3a; font-size:12px; }
 .map-node-count { fill:#1c3f30; font-weight:700; font-size:11px; }
 .map-graph-node { cursor:pointer; outline:none; }
-.map-graph-node:hover .map-node-bar,.map-graph-node:focus .map-node-bar,.map-graph-node.selected .map-node-bar { fill:#1d5b3e; }
+.map-graph-node:hover .map-node-bar,.map-graph-node:focus .map-node-bar,.map-graph-node.selected .map-node-bar { stroke:#0f172a; stroke-width:1.5px; }
 .map-graph-node:focus text { text-decoration:underline; }
 .map-selection { padding:9px 12px; background:#f0f5e8; border-radius:6px; font-size:12px; overflow-wrap:anywhere; }
 .map-table-toolbar { padding:18px; border-bottom:1px solid var(--line); }
@@ -51,4 +55,19 @@
 .map-url { color:#2c6c49; }
 .map-warnings { font-size:12px; overflow-wrap:anywhere; margin-bottom:20px; }
 .map-warnings ul { max-height:180px; overflow:auto; padding-left:20px; }
+.map-resume { display:flex; align-items:center; justify-content:space-between; gap:14px; background:#eef4ff; padding:12px; margin-top:12px; border-radius:7px; }
+.map-resume p { font-size:12px; }
+.map-graph-controls,.map-zoom { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-top:12px; }
+.map-zoom label { display:flex; align-items:center; gap:6px; }
+.map-zoom input[type="range"] { width:110px; padding:0; }
+.map-zoom output { min-width:40px; }
+.map-breadcrumb,.map-node-results { display:flex; gap:5px; flex-wrap:wrap; align-items:center; padding:8px 0; }
+.map-breadcrumb { font-size:12px; color:#64748b; }
+.map-node-results:empty { display:none; }
+.map-node-results .text-button { border:1px solid #dbe4ef; border-radius:5px; }
+.map-compare-counts { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0; }
+.map-compare-count { padding:8px 10px; background:#f3f6fb; border:1px solid #dbe4ef; border-radius:5px; color:#334155; font:inherit; font-size:11px; }
+.map-compare-filter { display:flex!important; align-items:center; gap:10px; margin-bottom:15px; }
+.map-compare-table td { min-width:140px; }
+.map-compare-table td:first-child { min-width:260px; }
 @media(max-width:700px) { .map-card{padding:16px}.map-metrics{gap:8px}.map-metrics article{padding:12px}.map-title h1{font-size:26px}.map-duration{margin-left:0} }

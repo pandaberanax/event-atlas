@@ -5,6 +5,7 @@ const STEP=240;
 const TOP=64;
 const HEIGHT=390;
 const BAR=12;
+const COLORS=['#2563eb','#ea580c','#7c3aed','#0891b2'];
 const fmt=value=>Number(value).toLocaleString(locale());
 
 function element(name,attributes={},text) {
@@ -42,11 +43,11 @@ export function renderWebsiteGraph(container,tree,{start='/',trail=[],expanded=n
   const layout=new Map();
   columns.forEach((column,index)=>{
     const x=20+index*STEP;
-    svg.append(element('text',{x,y:20,class:'map-column-heading'},index===0?t('mapStartingPoint'):t('mapStep',{n:index})));
+    svg.append(element('text',{x,y:20,class:'map-column-heading'},index===0?t('mapStartingPath'):t('mapStep',{n:index})));
     let y=TOP;
-    for (const node of column.nodes) {
+    for (const [position,node] of column.nodes.entries()) {
       const h=scale*node.count;
-      layout.set(node.id,{node,x,y,h,index});
+      layout.set(node.id,{node,x,y,h,index,color:index===0?'#475569':COLORS[(position+index-1)%COLORS.length]});
       y+=Math.max(h,36)+22;
     }
   });
@@ -67,17 +68,18 @@ export function renderWebsiteGraph(container,tree,{start='/',trail=[],expanded=n
       const mid=(x1+x2)/2;
       const path='M '+x1+' '+a+' C '+mid+' '+a+' '+mid+' '+b+' '+x2+' '+b+
         ' L '+x2+' '+(b+target.h)+' C '+mid+' '+(b+target.h)+' '+mid+' '+(a+thickness)+' '+x1+' '+(a+thickness)+' Z';
-      svg.append(element('path',{d:path,class:'map-flow'}));
+      const route=trail.includes(child.id);
+      svg.append(element('path',{d:path,class:'map-flow'+(route?' map-route':''),fill:target.color,'data-path':child.parentId||child.id}));
       offset+=thickness;
     }
   }
   for (const item of layout.values()) {
-    const {node,x,y,h,index}=item;
+    const {node,x,y,h,index,color}=item;
     const title=(node.more?node.label:(node.terminal?node.parentId:node.id))+' · '+t('mapUrlCount',{n:fmt(node.count)})+
       ' · '+new Intl.NumberFormat(locale(),{style:'percent',maximumFractionDigits:1}).format(node.count/root.count);
-    const group=element('g',{role:'button',tabindex:'0','aria-label':title,class:'map-graph-node'+(trail.includes(node.id)?' selected':'')});
+    const group=element('g',{role:'button',tabindex:'0','aria-label':title,'data-path':node.parentId||node.id,class:'map-graph-node'+(trail.includes(node.id)?' selected':'')});
     group.append(element('title',{},title));
-    group.append(element('rect',{x,y,width:BAR,height:h,rx:2,class:node.more?'map-node-more':'map-node-bar'}));
+    group.append(element('rect',{x,y,width:BAR,height:h,rx:2,fill:color,class:node.more?'map-node-more':'map-node-bar'}));
     group.append(element('rect',{x:x+BAR,y,width:195,height:Math.max(h,38),fill:'transparent'}));
     const text=element('text',{x:x+BAR+8,y:y+13,class:'map-node-label'});
     text.textContent=node.label.length>24?node.label.slice(0,23)+'…':node.label;
@@ -85,6 +87,17 @@ export function renderWebsiteGraph(container,tree,{start='/',trail=[],expanded=n
     const activate=()=>node.more?onMore(node.parentId):onSelect(node,index);
     group.addEventListener('click',activate);
     group.addEventListener('keydown',event=>{if(['Enter',' '].includes(event.key)){event.preventDefault();activate();}});
+    const highlight=()=>{
+      svg.classList.add('map-highlighting');
+      const path=node.parentId||node.id;
+      for(const candidate of svg.querySelectorAll('[data-path]')){
+        const value=candidate.getAttribute('data-path');
+        candidate.classList.toggle('map-highlight',path==='/' || value==='/' || value===path || value.startsWith(path+'/') || path.startsWith(value+'/'));
+      }
+    };
+    const clear=()=>svg.classList.remove('map-highlighting');
+    group.addEventListener('pointerenter',highlight);group.addEventListener('pointerleave',clear);
+    group.addEventListener('focus',highlight);group.addEventListener('blur',clear);
     svg.append(group);
   }
   container.append(svg);
