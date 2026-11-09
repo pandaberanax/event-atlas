@@ -1,5 +1,5 @@
-export const VERSION = '1.5.11';
-export const RELEASE_DATE = '2026-11-09';
+export const VERSION = '1.6.0';
+export const RELEASE_DATE = '2026-11-10';
 export const SPEED_PROFILES = {
   balanced: {concurrency:2,waitMs:1800},
   fast: {concurrency:3,waitMs:900},
@@ -8,6 +8,10 @@ export const SPEED_PROFILES = {
 };
 export const CHANGELOG = [
  {version:VERSION,date:RELEASE_DATE,changes:{
+  id:['Website Map menyimpan progres otomatis, memulihkan scan terputus, dan menyediakan riwayat hasil.','Atur subfolder, pengecualian, kedalaman pencarian, metode sitemap atau link, dan hingga 5 halaman bersamaan.','Gunakan Struktur URL, Path awal, dan Level dengan warna cabang kontras, zoom, geser, pencarian path, serta breadcrumb.','Buka rincian cakupan dan bandingkan dua hasil scan melalui riwayat atau JSON.'],
+  en:['Website Map saves progress automatically, restores interrupted scans, and keeps scan history.','Configure subfolders, exclusions, scan depth, sitemap or link discovery, and up to 5 concurrent pages.','Explore URL Structure with Starting path and Level labels, contrasting branches, zoom, pan, path search, and breadcrumbs.','Inspect coverage groups and compare two scans from history or JSON.']
+ }},
+ {version:'1.5.11',date:'2026-11-09',changes:{
   id:['Tambahkan workspace Website Map untuk menemukan URL melalui sitemap dan link internal.','Jelajahi path subfolder lewat grafik interaktif, starting point, jumlah URL, dan tabel yang mengikuti pilihan.','Filter hasil, unduh CSV atau grafik SVG, simpan dan impor JSON, serta siapkan audit event satu URL.'],
   en:['Add the Website Map workspace to discover URLs through sitemaps and internal links.','Explore subfolder paths with an interactive graph, starting points, URL counts, and a linked table.','Filter results, download CSV or SVG, save and import JSON, and set up a single-URL event audit.']
  }},

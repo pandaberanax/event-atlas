@@ -54,7 +54,8 @@ export function websiteMapRows(report, {prefix='/',query='',depth='',status='all
   return (report?.pages || []).filter(row => pathWithin(new URL(row.url).pathname,prefix)
     && (!text || [row.url,row.title].join(' ').toLowerCase().includes(text))
     && (depth === '' || pathDepth(row.url) <= Number(depth))
-    && (status === 'all' || row.status === status));
+    && (status === 'all' || status === 'pending' && ['discovered','loading'].includes(row.status) ||
+      status === 'inspected' && ['ok','redirect','error'].includes(row.status) || row.status === status));
 }
 
 export function validateWebsiteMap(report) {
@@ -78,4 +79,39 @@ export function websiteMapCsv(rows) {
     ...rows.map(row => {const url = new URL(row.url);return [row.url,row.title,url.pathname,
       pathSegments(row.url).slice(0,-1).join('/'),pathDepth(row.url),row.status,row.httpStatus,row.source,row.foundOn,row.finalUrl,row.error];})];
   return '\uFEFF' + records.map(record => record.map(quote).join(',')).join('\r\n');
+}
+
+export function compareWebsiteMaps(before,after) {
+  validateWebsiteMap(before);validateWebsiteMap(after);
+  if(new URL(before.root).origin!==new URL(after.root).origin)throw Error('mapCompareOrigin');
+  const previous=new Map(before.pages.map(row=>[row.url,row]));
+  const current=new Map(after.pages.map(row=>[row.url,row]));
+  const pending=row=>!row || ['discovered','loading'].includes(row.status);
+  const rows=[];
+  const totals={added:0,notFound:0,status:0,redirect:0,unchanged:0};
+  for(const url of new Set([...previous.keys(),...current.keys()])){
+    const left=previous.get(url),right=current.get(url),changes=[];
+    if(!left)changes.push('added');
+    else if(!right)changes.push('notFound');
+    else if(!pending(left)&&!pending(right)){
+      if(left.status!==right.status || left.httpStatus!==right.httpStatus)changes.push('status');
+      if((left.finalUrl||url)!==(right.finalUrl||url))changes.push('redirect');
+    }
+    if(!changes.length)changes.push('unchanged');
+    for(const change of changes)totals[change]++;
+    rows.push({url,before:left,after:right,changes});
+  }
+  const scope=report=>JSON.stringify({origin:new URL(report.root).origin,scope:report.options?.scope||'site',
+    includePath:report.options?.includePath||'/',excludePaths:report.options?.excludePaths||[],
+    maxScanDepth:report.options?.maxScanDepth??null,keepQuery:report.options?.keepQuery===true,
+    method:report.options?.method||(report.options?.rendered?'javascript':'links'),maxPages:report.options?.maxPages});
+  return {rows,totals,sameScope:scope(before)===scope(after),partial:[before,after].some(report=>report.status!=='completed')};
+}
+
+export function websiteComparisonCsv(rows) {
+  const quote=value=>'"'+String(value??'').replace(/^[=+@\-\t\r]/,"'$&").replaceAll('"','""')+'"';
+  const records=[['url','changes','previous_status','current_status','previous_http','current_http','previous_final_url','current_final_url'],
+    ...rows.map(row=>[row.url,row.changes.join(' | '),row.before?.status,row.after?.status,row.before?.httpStatus,
+      row.after?.httpStatus,row.before?.finalUrl,row.after?.finalUrl])];
+  return '\uFEFF'+records.map(record=>record.map(quote).join(',')).join('\r\n');
 }

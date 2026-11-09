@@ -4,7 +4,7 @@ import {randomUUID} from 'node:crypto';
 import {pageEvents} from './report-runtime.mjs';
 import {elapsedMs} from './dist/model.js';
 import {completePage} from './dist/event-model.js';
-async function atomic(file,data){const tmp=file+'.tmp';await fs.writeFile(tmp,JSON.stringify(data));await fs.rename(tmp,file);}
+export async function atomic(file,data){const tmp=file+'.tmp';await fs.writeFile(tmp,JSON.stringify(data));await fs.rename(tmp,file);}
 export function checkpointWriter(root,{intervalMs=15000}={}){
  const run=randomUUID(),dir=path.join(root,run),revisions=new Map();let latest,chain=Promise.resolve(),last=0;
  const flush=()=>{chain=chain.then(async()=>{

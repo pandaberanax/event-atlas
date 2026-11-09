@@ -1,5 +1,16 @@
 # Event Atlas — Changelog
 
+## 1.6.0 — 2026-11-10
+
+- Simpan progres Website Map ke disk setiap 5 detik dan saat scan selesai. Pulihkan hasil setelah restart, lanjutkan URL tersisa, dan buka 20 hasil terbaru melalui riwayat lokal.
+- Atur seluruh domain atau subfolder tertentu, pengecualian path, dan kedalaman pencarian. Pilih metode sitemap saja, sitemap + link internal, atau JavaScript. Concurrent pages mendukung 1–5.
+- Ganti nama grafik menjadi Struktur URL dengan Path awal dan Level. Tambahkan warna biru, jingga, ungu, dan sian per cabang, sorotan path, zoom, geser, sesuaikan ke layar, pencarian node, dan breadcrumb.
+- Buka kelompok cakupan berhasil, redirect, gagal, dilewati, dan belum diperiksa. Bandingkan hasil lewat riwayat atau JSON untuk melihat URL baru, tidak ditemukan lagi, perubahan status, serta tujuan redirect, lalu ekspor CSV perbandingan.
+- Save Website Map progress to disk every 5 seconds and when a scan finishes. Restore after restart, resume unfinished work, and open the latest 20 scans from local history.
+- Configure domain or subfolder scope, excluded paths and scan depth. Choose sitemap-only, sitemap + internal links, or JavaScript discovery with 1–5 concurrent pages.
+- Rename the chart to URL Structure with Starting path and Level columns. Add blue, orange, purple and cyan branches, route highlights, zoom, pan, fit-to-view, node search and breadcrumbs.
+- Open coverage groups and compare scans from history or JSON to find newly discovered or absent URLs, status changes and redirect-target changes, then export the comparison as CSV.
+
 ## 1.5.11 — 2026-11-09
 
 - Tambahkan workspace Website Map dengan pencarian sitemap dan link internal, pilihan membaca JavaScript, batas URL, dan 1–4 halaman bersamaan.

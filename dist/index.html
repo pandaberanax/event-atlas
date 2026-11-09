@@ -40,20 +40,43 @@
     <div class="map-form-main"><label class="map-domain"><span data-i18n="mapDomain"></span><input id="mapDomain" type="text" placeholder="https://example.com" required></label><button id="mapStart" class="button primary" type="submit" data-i18n="mapStart"></button><button id="mapStop" class="button danger" type="button" data-i18n="mapStop" hidden></button></div>
     <div class="map-options">
      <label><span data-i18n="mapLimit"></span><select id="mapLimit"><option value="100">100</option><option value="1000" selected>1,000</option><option value="3000">3,000</option><option value="10000">10,000</option></select></label>
-     <label><span data-i18n="mapConcurrency"></span><select id="mapConcurrency"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option></select></label>
-     <label class="map-checkbox"><input id="mapRendered" type="checkbox"><span data-i18n="mapRendered"></span></label>
+     <label><span data-i18n="mapConcurrency"></span><select id="mapConcurrency"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select></label>
+     <label><span data-i18n="mapMethod"></span><select id="mapMethod"><option value="sitemap" data-i18n="mapMethodSitemap"></option><option value="links" selected data-i18n="mapMethodLinks"></option><option value="javascript" data-i18n="mapMethodJavaScript"></option></select></label>
      <label class="map-checkbox"><input id="mapKeepQuery" type="checkbox"><span data-i18n="mapKeepQuery"></span></label>
+    </div>
+    <div class="map-options map-scope-options">
+     <label><span data-i18n="mapScope"></span><select id="mapScope"><option value="site" data-i18n="mapScopeSite"></option><option value="subfolder" data-i18n="mapScopeSubfolder"></option></select></label>
+     <label id="mapIncludeField" hidden><span data-i18n="mapIncludePath"></span><input id="mapIncludePath" type="text" placeholder="/produk"></label>
+     <label><span data-i18n="mapExcludePaths"></span><input id="mapExcludePaths" type="text" placeholder="/login, /artikel"></label>
+     <label><span data-i18n="mapScanDepth"></span><select id="mapScanDepth"><option value="" data-i18n="mapAllDepths"></option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="10">10</option><option value="20">20</option><option value="50">50</option></select></label>
     </div>
    </form>
    <p class="map-help" data-i18n="mapHelp"></p>
    <div class="map-summary"><strong id="mapReportStatus"></strong><span id="mapRoot"></span><span class="map-duration"><span data-i18n="elapsed"></span><output id="mapDuration">00:00:00</output></span></div>
+   <p id="mapSaveStatus" class="map-help" role="status"></p>
+   <div id="mapResumePanel" class="map-resume" hidden><p data-i18n="mapResumeHelp"></p><button id="mapResume" class="button secondary small" type="button" data-i18n="mapResume"></button></div>
+   <div class="map-options"><label><span data-i18n="mapHistory"></span><select id="mapHistory"></select></label><button id="mapOpenHistory" class="text-button" type="button" data-i18n="mapOpenHistory"></button></div>
    <p id="mapNotice" role="status" class="notice" hidden></p>
   </section>
-  <div class="map-metrics"><article class="table-card"><span data-i18n="mapFound"></span><strong id="mapFound">0</strong></article><article class="table-card"><span data-i18n="mapInspected"></span><strong id="mapInspected">0</strong></article><article class="table-card"><span data-i18n="mapFailed"></span><strong id="mapFailed">0</strong></article></div>
+  <div class="map-metrics">
+   <button type="button" class="table-card" data-map-status="all"><span data-i18n="mapFound"></span><strong id="mapFound">0</strong></button>
+   <button type="button" class="table-card" data-map-status="inspected"><span data-i18n="mapInspected"></span><strong id="mapInspected">0</strong></button>
+   <button type="button" class="table-card" data-map-status="ok"><span data-i18n="mapLoaded"></span><strong id="mapLoaded">0</strong></button>
+   <button type="button" class="table-card" data-map-status="redirect"><span data-i18n="mapRedirects"></span><strong id="mapRedirects">0</strong></button>
+   <button type="button" class="table-card" data-map-status="error"><span data-i18n="mapFailed"></span><strong id="mapFailed">0</strong></button>
+   <button type="button" class="table-card" data-map-status="skipped"><span data-i18n="mapSkipped"></span><strong id="mapSkipped">0</strong></button>
+   <button type="button" class="table-card" data-map-status="pending"><span data-i18n="mapPending"></span><strong id="mapPending">0</strong></button>
+  </div>
   <section class="table-card map-card">
    <div class="map-graph-toolbar"><h2 data-i18n="mapGraphTitle"></h2><div class="map-graph-options"><label><span data-i18n="mapStartingPoint"></span><select id="mapStartingPoint"></select></label><button id="mapReset" class="text-button" type="button" data-i18n="mapReset"></button><button id="mapDownloadGraph" class="button secondary small" type="button" data-i18n="mapDownloadGraph"></button></div></div>
    <p class="map-caption" data-i18n="mapGraphHelp"></p>
-   <div id="mapGraph" class="map-graph"></div><p id="mapGraphEmpty" class="map-help" data-i18n="mapEmpty"></p>
+   <div class="map-graph-controls">
+    <label><span data-i18n="mapNodeSearch"></span><input id="mapNodeSearch" type="search" placeholder="/produk"></label>
+    <div class="map-zoom"><button id="mapZoomOut" class="pager" type="button" data-i18n-aria="mapZoomOut">−</button><label><span data-i18n="mapZoom"></span><input id="mapZoom" type="range" min="25" max="200" value="100"><output id="mapZoomValue">100%</output></label><button id="mapZoomIn" class="pager" type="button" data-i18n-aria="mapZoomIn">+</button><button id="mapFit" class="text-button" type="button" data-i18n="mapFit"></button></div>
+   </div>
+   <div id="mapNodeResults" class="map-node-results"></div>
+   <nav id="mapBreadcrumb" class="map-breadcrumb" data-i18n-aria="mapBreadcrumb"></nav>
+   <div id="mapGraph" class="map-graph" tabindex="0" data-i18n-aria="mapGraphNavigation"></div><p id="mapGraphEmpty" class="map-help" data-i18n="mapEmpty"></p>
    <p id="mapSelection" class="map-selection"></p>
   </section>
   <div class="section-heading"><div><h2 data-i18n="mapPagesTitle"></h2><p data-i18n="mapTableHelp"></p></div><div class="exports"><button id="mapDownloadAll" class="button secondary small" type="button" data-i18n="mapDownloadAll"></button><button id="mapDownloadFiltered" class="button secondary small" type="button" data-i18n="mapDownloadFiltered"></button><button id="mapDownloadJson" class="text-button" type="button">↓ JSON</button></div></div>
@@ -61,8 +84,8 @@
    <div class="map-table-toolbar">
     <label><span data-i18n="mapTableMode"></span><select id="mapTableMode"><option value="pages" data-i18n="mapPageList"></option><option value="folders" data-i18n="mapFolderList"></option></select></label>
     <label><span data-i18n="mapPathFilter"></span><input id="mapPathFilter" type="text" placeholder="/produk"></label>
-    <label><span data-i18n="mapDepthLabel"></span><select id="mapDepth"><option value="" data-i18n="mapAllDepths"></option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="10">10</option></select></label>
-    <label><span data-i18n="mapStatus"></span><select id="mapStatusFilter"><option value="all" data-i18n="mapAllStatuses"></option><option value="ok" data-i18n="mapStatus_ok"></option><option value="redirect" data-i18n="mapStatus_redirect"></option><option value="error" data-i18n="mapStatus_error"></option><option value="skipped" data-i18n="mapStatus_skipped"></option><option value="discovered" data-i18n="mapStatus_discovered"></option></select></label>
+    <label><span data-i18n="mapDisplayDepth"></span><select id="mapDepth"><option value="" data-i18n="mapAllDepths"></option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="10">10</option></select></label>
+    <label><span data-i18n="mapStatus"></span><select id="mapStatusFilter"><option value="all" data-i18n="mapAllStatuses"></option><option value="inspected" data-i18n="mapStatus_inspected"></option><option value="ok" data-i18n="mapStatus_ok"></option><option value="redirect" data-i18n="mapStatus_redirect"></option><option value="error" data-i18n="mapStatus_error"></option><option value="skipped" data-i18n="mapStatus_skipped"></option><option value="pending" data-i18n="mapStatus_pending"></option><option value="discovered" data-i18n="mapStatus_discovered"></option></select></label>
     <label><span data-i18n="mapSearch"></span><input id="mapSearch" type="search" data-i18n-placeholder="mapSearch"></label>
    </div>
    <div class="table-scroll"><table class="map-table"><thead><tr id="mapTableHead"></tr></thead><tbody id="mapTableRows"></tbody></table></div>
@@ -70,6 +93,19 @@
    <footer class="table-footer"><span id="mapTableCount"></span><div><button id="mapPrevious" type="button" class="pager" data-i18n-aria="prev">←</button><span id="mapTablePage"></span><button id="mapNext" type="button" class="pager" data-i18n-aria="next">→</button></div></footer>
   </section>
   <details id="mapWarnings" class="limits map-warnings" hidden><summary data-i18n="mapWarnings"></summary><ul id="mapWarningList"></ul></details>
+  <section class="table-card map-card map-comparison">
+   <div class="section-heading"><div><h2 data-i18n="mapCompareTitle"></h2><p data-i18n="mapCompareHelp"></p></div><button id="mapCompareDownload" class="button secondary small" type="button" data-i18n="mapCompareDownload" disabled></button></div>
+   <div class="map-options"><label><span data-i18n="mapComparePrevious"></span><select id="mapCompareSaved"></select></label><button id="mapCompareImport" type="button" class="button secondary small" data-i18n="mapCompareImport"></button><input id="mapCompareFile" type="file" accept=".json,application/json" hidden></div>
+   <p id="mapCompareBaseline" class="map-help"></p><p id="mapCompareCurrent" class="map-help"></p>
+   <p id="mapCompareNotice" class="map-help" role="status"></p>
+   <div id="mapCompareResults" hidden>
+    <div id="mapCompareCounts" class="map-compare-counts"></div>
+    <label class="map-compare-filter"><span data-i18n="mapCompareFilter"></span><select id="mapCompareFilter"><option value="all" data-i18n="mapCompareAll"></option><option value="added" data-i18n="mapChange_added"></option><option value="notFound" data-i18n="mapChange_notFound"></option><option value="status" data-i18n="mapChange_status"></option><option value="redirect" data-i18n="mapChange_redirect"></option><option value="unchanged" data-i18n="mapChange_unchanged"></option></select></label>
+    <div class="table-scroll"><table class="map-table map-compare-table"><thead><tr><th data-i18n="mapUrl"></th><th data-i18n="mapCompareChanges"></th><th data-i18n="mapCompareBeforeStatus"></th><th data-i18n="mapCompareAfterStatus"></th><th data-i18n="mapCompareBeforeTarget"></th><th data-i18n="mapCompareAfterTarget"></th></tr></thead><tbody id="mapCompareRows"></tbody></table></div>
+    <p id="mapCompareEmptyRows" class="map-help" data-i18n="mapCompareNoChanges" hidden></p>
+    <footer class="table-footer"><span id="mapCompareCount"></span><div><button id="mapComparePrevious" type="button" class="pager" data-i18n-aria="prev">←</button><span id="mapComparePage"></span><button id="mapCompareNext" type="button" class="pager" data-i18n-aria="next">→</button></div></footer>
+   </div>
+  </section>
  </section>
  <section id="timelineView" class="view" hidden>
   <div class="section-heading"><div><h2 data-i18n="navTimeline"></h2><p id="timelineSubtitle" data-i18n="timelineSubtitle"></p></div></div>
