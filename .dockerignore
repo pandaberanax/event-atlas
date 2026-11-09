@@ -1,0 +1,10 @@
+.git
+.openai
+node_modules
+reports
+tests
+docker
+dist/event-atlas-runner.zip
+*.zip
+.env
+.env.*

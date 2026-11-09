@@ -1,5 +1,18 @@
 # Event Atlas — Changelog
 
+## 1.5.11 — 2026-11-09
+
+- Tambahkan workspace Website Map dengan pencarian sitemap dan link internal, pilihan membaca JavaScript, batas URL, dan 1–4 halaman bersamaan.
+- Tampilkan grafik path subfolder dari kiri ke kanan, jumlah URL, pilihan starting point, pembukaan cabang, serta tabel URL dan ringkasan path.
+- Tambahkan filter subfolder, pencarian, kedalaman dan status, unduhan CSV semua atau terfilter, ekspor SVG, dan simpan/impor JSON.
+- Siapkan audit event satu URL dari baris tabel. Hasil parsial tersedia setelah mapping dihentikan.
+- Pulihkan struktur direktori proyek yang tercampur saat upload melalui website GitHub.
+- Add Website Map with sitemap and internal-link discovery, JavaScript rendering, URL limits, and 1–4 concurrent pages.
+- Show subfolder paths from left to right, URL counts, starting points, expandable branches, and URL and path-summary tables.
+- Add subfolder, search, depth and status filters, full or filtered CSV downloads, SVG export, and JSON save/import.
+- Set up a single-URL event audit from a table row and keep partial results when mapping stops.
+- Restore project directories flattened during the GitHub website upload.
+
 ## 1.5.10 — 2026-11-06
 
 - Tambahkan opsi Firebase DebugView untuk package yang dipilih dan opsi menyimpan log diagnostik FA, FA-SVC, Google Tag Manager, dan MoEngage dari proses aplikasi. Pengaturan sementara dipulihkan setelah sesi.

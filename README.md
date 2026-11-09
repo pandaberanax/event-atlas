@@ -1,10 +1,23 @@
 # Event Atlas
 
-Versi **1.5.10** · Development. Pilih Indonesia atau Inggris di kanan atas. Riwayat rilis tersedia di [CHANGELOG.md](CHANGELOG.md).
+Versi **1.5.11** · Development. Pilih Indonesia atau Inggris di kanan atas. Riwayat rilis tersedia di [CHANGELOG.md](CHANGELOG.md).
 
 Dibuat oleh **Steven Andrian** bersama **ChatGPT**.
 
 Tool audit event website lintas platform untuk menemukan event dan lokasi halaman/link/tombolnya. Masukkan domain yang ingin diperiksa; tidak ada domain bawaan atau laporan contoh yang dimuat otomatis.
+
+## Website Map
+
+1. Jalankan Event Atlas lalu pilih **Website Map** di sidebar kiri. Masukkan domain atau URL awal.
+2. Pilih batas URL dan jumlah halaman bersamaan. Aktifkan **Baca link dari JavaScript** untuk memuat link yang dibuat oleh skrip halaman. Aktifkan **Pisahkan URL dengan query parameter** bila variasi query perlu dicatat.
+3. Klik **Mulai mapping**. Pencarian membaca sitemap dan link internal pada origin yang sama, mengikuti robots.txt, dan memuat halaman tanpa menguji klik elemen. Redirect awal antara host www dan non-www diperiksa sebagai alamat kanonis.
+4. Klik node grafik untuk menyaring tabel. Pilih **Starting point** untuk mulai dari suatu subfolder. Cabang tambahan tersedia lewat **+ lainnya**. Angka dan ketebalan garis mewakili jumlah URL yang ditemukan di bawah suatu path.
+5. Gunakan **Daftar URL** atau **Ringkasan path**, filter subfolder, kedalaman maksimum, status, atau pencarian judul. **Siapkan audit URL** mengisi formulir audit event untuk URL pilihan.
+6. Unduh semua atau sebagian URL ke CSV, ekspor grafik SVG, atau simpan sesi ke JSON. Buka kembali JSON melalui **Impor hasil** di bagian atas dashboard. Hasil yang sudah ditemukan dapat diunduh saat pencarian berjalan atau setelah dihentikan. Ekspor JSON sebelum menutup mesin lokal untuk menyimpan sesi.
+
+Grafik mengikuti susunan path URL. Folder perantara bisa menjadi kelompok virtual meskipun tidak memiliki halaman sendiri. Cakupan mengikuti URL yang ditemukan dan batas scan. Catatan pencarian menampilkan sitemap yang gagal dibaca. Halaman tanpa link, halaman login, dan route berbasis hash memerlukan penelusuran tambahan. Parameter kampanye dibuang saat normalisasi. Mode JavaScript menunggu 0,9 detik pada setiap halaman.
+
+Open **Website Map** in the sidebar, enter a starting URL, and choose a URL limit and concurrency. Enable JavaScript rendering for dynamically generated links. The scan reads sitemaps and same-origin links while respecting robots.txt. Explore the graph by clicking nodes or choosing a starting point, filter the linked tables, download full or filtered CSV, export SVG, and save or import JSON. Counts represent discovered URLs under each path. Export JSON before closing the local engine to retain a session. Unlinked, authenticated, and hash-based routes need additional discovery.
 
 ## Audit Android dengan APK klien
 
