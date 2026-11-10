@@ -13,6 +13,14 @@ export function mapUrl(value, base, keepQuery = false) {
   } catch { return null; }
 }
 
+// New discoveries omit transient verification tokens without changing how
+// historical report URLs are validated or displayed.
+export function discoveryUrl(value,base,keepQuery=false){
+  const normalized=mapUrl(value,base,keepQuery);if(!normalized)return null;
+  const url=new URL(normalized);for(const key of [...url.searchParams.keys()])if(/^(?:bm-verify$|__cf_chl_)/i.test(key))url.searchParams.delete(key);
+  return url.href;
+}
+
 export const pathSegments = value => new URL(value).pathname.split('/').filter(Boolean);
 export const pathDepth = value => pathSegments(value).length;
 export function pathWithin(value, prefix) {
@@ -55,7 +63,7 @@ export function websiteMapRows(report, {prefix='/',query='',depth='',status='all
     && (!text || [row.url,row.title].join(' ').toLowerCase().includes(text))
     && (depth === '' || pathDepth(row.url) <= Number(depth))
     && (status === 'all' || status === 'pending' && ['discovered','loading'].includes(row.status) ||
-      status === 'inspected' && ['ok','redirect','error'].includes(row.status) || row.status === status));
+      status === 'inspected' && ['ok','redirect','error'].includes(row.status) || status==='verification'&&!!row.accessIssue || row.status === status));
 }
 
 export function validateWebsiteMap(report) {

@@ -1,4 +1,6 @@
-const messages = {
+import {reliabilityMessages} from './reliability-messages.js';
+import {projectMessages} from './project-messages.js';
+const messages = {...projectMessages,...reliabilityMessages,
  mapMethod:['Metode pencarian','Discovery method'],
  mapMethodSitemap:['Sitemap saja','Sitemap only'],
  mapMethodLinks:['Sitemap + link internal','Sitemap + internal links'],
@@ -76,7 +78,7 @@ const messages = {
  mapConcurrency:['Halaman bersamaan','Concurrent pages'],
  mapRendered:['Baca link dari JavaScript','Read links rendered by JavaScript'],
  mapKeepQuery:['Pisahkan URL dengan query parameter','Keep query parameter variants'],
- mapHelp:['Pilih metode dan cakupan pencarian. Kedalaman dihitung dari domain dengan / pada level 0. Mode JavaScript menunggu 0,9 detik per halaman. Progres disimpan otomatis setiap 5 detik dan saat selesai.','Choose a discovery method and scope. Depth is measured from the domain with / at level 0. JavaScript mode waits 0.9 seconds per page. Progress is saved every 5 seconds and when the scan finishes.'],
+ mapHelp:['Pilih metode dan cakupan pencarian. Kedalaman dihitung dari domain dengan / pada level 0. Atur waktu tunggu JavaScript dan batas sitemap pada opsi pencarian. Progres disimpan otomatis setiap 5 detik dan saat selesai.','Choose a discovery method and scope. Depth is measured from the domain with / at level 0. Configure JavaScript wait time and sitemap limits in discovery options. Progress is saved every 5 seconds and when the scan finishes.'],
  mapFound:['URL ditemukan','URLs discovered'],
  mapInspected:['URL diperiksa','URLs inspected'],
  mapFailed:['URL gagal dimuat','URLs that failed to load'],
@@ -144,7 +146,7 @@ const messages = {
  mapRobotsOrAction:['Dilewati sesuai robots.txt atau karena merupakan URL logout.','Skipped according to robots.txt or because this is a logout URL.'],
  mapOutsideOrigin:['Redirect menuju origin lain.','Redirect leads to another origin.'],
  mapSitemapLarge:['Sitemap melebihi batas 8 MiB.','The sitemap exceeds the 8 MiB limit.'],
- mapSitemapLimit:['Batas 50 sitemap tercapai. Sebagian sitemap mungkin belum dibaca.','The 50-sitemap limit was reached. Some sitemaps may remain unread.'],
+ mapSitemapLimit:['Batas file sitemap tercapai. Sebagian sitemap belum dibaca. Naikkan batas di opsi pencarian.','The sitemap file limit was reached. Some sitemaps were not read. Increase the limit in discovery options.'],
  allPagesFailed:['Halaman gagal dimuat. Buka Halaman & cakupan untuk melihat penyebab dan mencoba ulang.','Page loading failed. Open Pages & coverage for details and retry.'],
  completedWithErrors:['Selesai dengan halaman gagal','Completed with failed pages'],
  navigationAttempts:['Percobaan memuat halaman','Page load attempts'],
@@ -392,7 +394,7 @@ export const locale=()=>language==='en'?'en-US':'id-ID';
 export function setLanguage(value){language=value==='en'?'en':'id';try{localStorage.setItem('event-atlas-language',language);}catch{}}
 export function t(key,params={}) { const entry=messages[key];const text=entry?entry[language==='en'?1:0]:key;return text.replace(/\{(\w+)\}/g,(_,name)=>String(params[name]??'{'+name+'}')); }
 export function translateEvidence(value) {
- const text=String(value || '');
+ const text=String(value || '');if(messages[text])return t(text);
  const key=Object.keys(messages).find(k=>messages[k][0]===text);
  return key?t(key):text;
 }

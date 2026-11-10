@@ -3,11 +3,13 @@ import {eventPlatform, platformName, androidPlatformName, PLATFORM_IDS} from './
 import {ACTIVITY_TYPES, importedTimeline} from './timeline-model.js';
 import {createTimelineDetails, evidenceSource} from './timeline-details.js';
 import {createAndroidControls, importAndroid} from './android.js';
+import {projectUrl} from './project-model.js';
 
 const $ = id => document.getElementById(id);
 const PAGE_SIZE = 40;
 
-export function createTimeline() {
+export function createTimeline({openPage=()=>{}}={}) {
+  let urlFilter='';
   let token = '';
   let visible = false;
   let inFlight = false;
@@ -31,6 +33,9 @@ export function createTimeline() {
     const fromFile = $('timelineSource').value === 'file' && !!imported;
     const androidLive = $('timelineSource').value === 'android';
     const feed = fromFile ? imported : androidLive ? android.feed() : live;
+    $('timelineUrlFilter').hidden=!urlFilter;
+    $('timelineUrlLabel').textContent=t('projectExactUrl',{url:urlFilter});
+    $('timelineUrlLabel').dataset.url=urlFilter;
     const feedKey = (fromFile ? 'file' : androidLive ? 'android:' : 'web:') + (feed.id || '');
     if (feedKey !== renderedFeedId) {page = 0; renderedFeedId = feedKey;}
     $('timelinePairing').hidden = fromFile || androidLive;
@@ -56,6 +61,7 @@ export function createTimeline() {
     const selectedPlatform = feed.android ? platformFilter.value : 'all';
     const rows = feed.rows.map((entry, index) => ({entry, index}))
       .filter(({entry}) => type === 'all' || entry.type === type)
+      .filter(({entry}) => !urlFilter || !feed.android&&projectUrl(entry.page)===projectUrl(urlFilter))
       .filter(({entry}) => selectedPlatform === 'all' || entry.platform === selectedPlatform)
       .sort((a, b) => b.entry.time - a.entry.time || b.index - a.index);
     const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
@@ -96,6 +102,10 @@ export function createTimeline() {
       const location = row.insertCell();
       const where = feed.android ? entry.screen : entry.page;
       location.textContent = typeof where === 'string' && where ? where : '—';
+      if(!feed.android&&projectUrl(where)){
+        const button=document.createElement('button');button.className='text-button';button.textContent=t('projectOpenPage');
+        button.onclick=()=>openPage(where);location.append(button);
+      }
       const detail = row.insertCell();
       const label = typeof entry.element?.text === 'string' ? entry.element.text : '';
       if (entry.type === 'event') {
@@ -205,6 +215,7 @@ export function createTimeline() {
     }
   };
   return {
+    filterUrl(value){urlFilter=value||'';if(urlFilter&&$('timelineSource').value==='android')$('timelineSource').value='live';page=0;render();},
     render() {render(); details.render();},
     connect(value) {token = value; void refresh();},
     show(value) {

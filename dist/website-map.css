@@ -71,3 +71,5 @@
 .map-compare-table td { min-width:140px; }
 .map-compare-table td:first-child { min-width:260px; }
 @media(max-width:700px) { .map-card{padding:16px}.map-metrics{gap:8px}.map-metrics article{padding:12px}.map-title h1{font-size:26px}.map-duration{margin-left:0} }
+.map-advanced{margin-top:12px}.map-advanced summary,.map-browser-help>summary{cursor:pointer;font-weight:600;font-size:13px}.map-browser-help>p{margin-top:12px}.map-browser-help li{font-size:12px;color:#526c60;line-height:1.7;margin:6px 0}.map-sitemap-field{flex:1;min-width:230px}.map-sitemap-field textarea{width:100%;border:1px solid #d5e0d2;border-radius:6px;padding:9px;font:inherit}.map-browser-help input{padding:9px;border:1px solid #d5e0d2;border-radius:6px}#mapBrowserStatus{overflow-wrap:anywhere}
+.map-metrics{grid-template-columns:repeat(4,minmax(0,1fr))}@media(max-width:850px){.map-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}

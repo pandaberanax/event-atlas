@@ -14,7 +14,7 @@ function download(content,type,name) {
   setTimeout(()=>URL.revokeObjectURL(url),1500);
 }
 
-export function createWebsiteMapView({auditUrl}) {
+export function createWebsiteMapView({auditUrl,openPage=()=>{},projectId=()=>null,onResults=()=>{},attachReport=async()=>{}}) {
   let token='';
   let report;
   let imported=false;
@@ -35,6 +35,7 @@ export function createWebsiteMapView({auditUrl}) {
   let engineWarning='';
   let zoom=1;
   let graphTree=new Map();
+  let graphKey,tableKey;
   const comparison=createWebsiteMapComparison({current:()=>report,download,
     readSaved:async id=>(await request('report?'+new URLSearchParams({id}))).report,
     onIssue:key=>{notice=key;render();}});
@@ -54,6 +55,10 @@ export function createWebsiteMapView({auditUrl}) {
       field.value=text;
     }
     $('mapMethod').value=options.method||(options.rendered?'javascript':'links');
+    for(const [id,value]of [['mapMaxSitemaps',options.maxSitemaps||500],['mapNavigationTimeout',options.navigationTimeoutMs||30000],['mapJavaScriptWait',options.javascriptWaitMs??900]]){
+      const field=$(id),text=String(value);if(![...field.options].some(o=>o.value===text))field.add(new Option(text,text));field.value=text;
+    }
+    $('mapSitemapUrls').value=(options.sitemapUrls||[]).join('\n');
     $('mapScope').value=options.scope||'site';$('mapIncludePath').value=options.includePath||'/';
     $('mapExcludePaths').value=(options.excludePaths||[]).join(', ');$('mapKeepQuery').checked=options.keepQuery===true;
   }
@@ -87,7 +92,7 @@ export function createWebsiteMapView({auditUrl}) {
   function renderTable() {
     const filtered=rows();
     const folders=$('mapTableMode').value==='folders';
-    const tree=report?buildWebsiteTree(filtered,report.root):new Map();
+    const tree=folders&&report?buildWebsiteTree(filtered,report.root):new Map();
     const items=folders?[...tree.values()].filter(node=>node.id!=='/'):filtered;
     const pages=Math.max(1,Math.ceil(items.length/PAGE_SIZE));
     page=Math.min(page,pages-1);
@@ -113,6 +118,8 @@ export function createWebsiteMapView({auditUrl}) {
         cell(row,item.httpStatus || '—');cell(row,t('mapSource_'+item.source));
         const action=row.insertCell();const button=document.createElement('button');button.type='button';button.className='text-button';button.textContent=t('mapAuditUrl');
         button.onclick=()=>auditUrl(item.url);action.append(button);
+        const detail=document.createElement('button');detail.type='button';detail.className='text-button';detail.textContent=t('projectOpenPage');
+        detail.onclick=()=>openPage(item.url);action.append(detail);
       }
       fragment.append(row);
     }
@@ -197,21 +204,31 @@ export function createWebsiteMapView({auditUrl}) {
     $('mapStart').hidden=active;
     $('mapIncludeField').hidden=$('mapScope').value!=='subfolder';
     $('mapIncludePath').required=$('mapScope').value==='subfolder';
+    $('mapJavaScriptWait').disabled=locked||$('mapMethod').value!=='javascript';
+    $('mapBrowserConnect').disabled=locked||!token;$('mapBrowserCopy').disabled=!$('mapBrowserCode').value;
+    $('mapStart').textContent=t($('mapMethod').value==='browser'?'mapBrowserConnect':'mapStart');
     $('mapDownloadAll').disabled=!report?.pages.length;
     $('mapDownloadJson').disabled=!report?.pages.length;
+    $('mapAttachProject').disabled=!report||active||busy;
     $('mapDownloadGraph').disabled=!$('mapGraph').querySelector('svg');
-    const count=status=>(report?.pages||[]).filter(row=>row.status===status).length;
-    const summary={ok:count('ok'),redirect:count('redirect'),failed:count('error'),skipped:count('skipped'),pending:count('discovered')+count('loading')};
+    const counts={ok:0,redirect:0,error:0,skipped:0,discovered:0,loading:0};
+    for(const row of report?.pages||[])counts[row.status]=(counts[row.status]||0)+1;
+    const summary={ok:counts.ok,redirect:counts.redirect,failed:counts.error,skipped:counts.skipped,pending:counts.discovered+counts.loading};
     summary.inspected=summary.ok+summary.redirect+summary.failed;
     $('mapFound').textContent=fmt(report?.pages.length||0);
     $('mapInspected').textContent=fmt(summary.inspected||0);
     $('mapFailed').textContent=fmt(summary.failed||0);
     $('mapLoaded').textContent=fmt(summary.ok);$('mapRedirects').textContent=fmt(summary.redirect);
     $('mapSkipped').textContent=fmt(summary.skipped);$('mapPending').textContent=fmt(summary.pending);
+    $('mapVerification').textContent=fmt((report?.pages||[]).filter(p=>p.accessIssue).length);
+    const discovery=report?.discovery;
+    $('mapDiscoveryStatus').textContent=discovery?t('mapDiscoveryProgress',{read:fmt(discovery.sitemapsRead),found:fmt(discovery.sitemapsFound),pending:fmt(discovery.sitemapsPending),failed:fmt(discovery.sitemapsFailed)}):'';
+    $('mapSingleUrlHelp').hidden=report?.pages.length!==1||active;
+    if(report?.browserCapture)$('mapBrowserStatus').textContent=t('mapBrowserCaptured',{pages:fmt(report.browserCapture.pages),url:report.browserCapture.lastPage});
     $('mapReportStatus').textContent=t('mapRun_'+(report?.status||'idle'))+(imported?' · '+t('mapImported'):'');
     $('mapRoot').textContent=report?.root || '';
     $('mapDuration').textContent=formatDuration(duration());
-    const canResume=report && (['stopped','interrupted','limited','error'].includes(report.status)||summary.failed>0);
+    const canResume=report && (['stopped','interrupted','limited','error','partial'].includes(report.status)||summary.failed>0);
     $('mapResumePanel').hidden=!canResume||active;$('mapResume').disabled=busy||!token;
     const checkpoint=report?.checkpoint;
     $('mapSaveStatus').textContent=imported?t('mapImportedSaveHelp'):checkpoint?.error?t('mapSaveError',{error:checkpoint.error}):checkpoint?.savedAt
@@ -220,6 +237,7 @@ export function createWebsiteMapView({auditUrl}) {
     $('mapHistory').replaceChildren(new Option(t('mapChooseScan'),''));
     for(const item of history)$('mapHistory').add(new Option(item.root+' · '+new Date(item.startedAt).toLocaleString(locale()),item.id));
     $('mapHistory').value=previousHistory;$('mapOpenHistory').disabled=active||busy||!$('mapHistory').value;
+    $('mapDeleteHistory').disabled=active||busy||!$('mapHistory').value;
     const messages=[notice,engineWarning,report?.error,report?.status==='limited'?'mapLimitNote':''].filter(Boolean);
     $('mapNotice').textContent=messages.map(key=>t(key)).join(' ');$('mapNotice').hidden=!messages.length;
     $('mapWarnings').hidden=!report?.warnings?.length;
@@ -227,7 +245,13 @@ export function createWebsiteMapView({auditUrl}) {
     for(const warning of (report?.warnings||[]).slice(0,100)){
       const li=document.createElement('li');li.textContent=[warning.url,t(warning.error)].filter(Boolean).join(' · ');$('mapWarningList').append(li);
     }
-    renderGraph();renderTable();
+    const dataKey=JSON.stringify([report?.id,report?.dataRevision??report?.revision,imported,locale()]);
+    const nextGraphKey=JSON.stringify([report?.id,report?.pages.length,$('mapSearch').value,$('mapDepth').value,$('mapStatusFilter').value,
+      $('mapSearch').value||$('mapStatusFilter').value!=='all'?dataKey:'',start,trail,[...expanded],locale()]);
+    if(graphKey!==nextGraphKey){renderGraph();graphKey=nextGraphKey;}
+    else $('mapSelection').textContent=t('mapSelection',{path:selectedOnly?selected+' · '+t('mapThisPage'):$('mapPathFilter').value||'/'});
+    const nextTableKey=JSON.stringify([dataKey,filters(),$('mapTableMode').value,page,selectedOnly,selected]);
+    if(tableKey!==nextTableKey){renderTable();tableKey=nextTableKey;}
     comparison.render(history);
     $('mapDownloadGraph').disabled=!$('mapGraph').querySelector('svg');
   }
@@ -237,13 +261,18 @@ export function createWebsiteMapView({auditUrl}) {
     requestPending=true;
     const started=generation;
     try{
-      const data=await request('status');
+      const query=new URLSearchParams(projectId()?{projectId:projectId()}:{});
+      if(report&&!imported){query.set('reportId',report.id);query.set('dataRevision',report.dataRevision??report.revision);}
+      const data=await request('status?'+query);
       if(started!==generation)return;
-      const changed=active!==data.active || !imported && (report?.id!==data.report?.id || report?.revision!==data.report?.revision);
+      const changed=active!==data.active || !imported&&!data.unchanged && (report?.id!==data.report?.id || report?.revision!==data.report?.revision);
       const historyChanged=JSON.stringify(history)!==JSON.stringify(data.history||[]);
       history=data.history||[];engineWarning=data.warning||'';
+      const wasActive=active;
       active=data.active;
-      if(!imported){const newId=report?.id!==data.report?.id;report=data.report || undefined;if(newId)syncOptions();}
+      if(wasActive&&!active)void onResults();
+      if(!imported){if(data.unchanged){Object.assign(report,data.meta);$('mapSaveStatus').textContent=report.checkpoint?.savedAt?t('mapSavedAt',{time:new Date(report.checkpoint.savedAt).toLocaleTimeString(locale())}):'';}
+        else {const newId=report?.id!==data.report?.id;report=data.report || undefined;if(newId)syncOptions();}}
       const hadNotice=notice==='mapDisconnected';
       if(hadNotice || notice==='mapStopping'&&!active)notice='';
       if(changed || hadNotice || historyChanged)render();
@@ -251,25 +280,52 @@ export function createWebsiteMapView({auditUrl}) {
     }catch(failure){notice=failure.message;render();}
     finally{requestPending=false;if(visible)timer=setTimeout(refresh,1200);}
   }
+  function formOptions(){let url=$('mapDomain').value.trim();if(!/^https?:\/\//i.test(url))url='https://'+url;
+    return {url,projectId:projectId(),maxPages:Number($('mapLimit').value),concurrency:Number($('mapConcurrency').value),
+      method:$('mapMethod').value,scope:$('mapScope').value,includePath:$('mapIncludePath').value,excludePaths:$('mapExcludePaths').value,
+      maxScanDepth:$('mapScanDepth').value,keepQuery:$('mapKeepQuery').checked,maxSitemaps:Number($('mapMaxSitemaps').value),
+      navigationTimeoutMs:Number($('mapNavigationTimeout').value),javascriptWaitMs:Number($('mapJavaScriptWait').value),sitemapUrls:$('mapSitemapUrls').value};}
+  async function prepareBrowser(){
+    if(active||busy||!$('mapForm').reportValidity())return;
+    busy=true;generation++;notice='';render();
+    try{const result=await request('browser/prepare',{...formOptions(),report});
+      $('mapBrowserCode').value=result.code;$('mapBrowserPanel').open=true;
+      $('mapBrowserStatus').textContent=t('mapBrowserReady',{time:new Date(result.expiresAt).toLocaleTimeString(locale())});
+      imported=false;void onResults();
+    }catch(failure){notice=failure.message;}
+    finally{busy=false;render();void refresh();}
+  }
+  $('mapBrowserConnect').onclick=()=>{$('mapMethod').value='browser';void prepareBrowser();};
+  $('mapBrowserCopy').onclick=async()=>{try{await navigator.clipboard.writeText($('mapBrowserCode').value);}catch{$('mapBrowserCode').select();}};
+  $('mapMethod').onchange=render;
   $('mapForm').onsubmit=async event=>{
-    event.preventDefault();if(busy)return;busy=true;generation++;notice='';render();
+    event.preventDefault();if($('mapMethod').value==='browser'){void prepareBrowser();return;}if(busy)return;busy=true;generation++;notice='';render();
     try{
-      let url=$('mapDomain').value.trim();if(!/^https?:\/\//i.test(url))url='https://'+url;
-      await request('start',{url,maxPages:Number($('mapLimit').value),concurrency:Number($('mapConcurrency').value),
-        method:$('mapMethod').value,scope:$('mapScope').value,includePath:$('mapIncludePath').value,
-        excludePaths:$('mapExcludePaths').value,maxScanDepth:$('mapScanDepth').value,keepQuery:$('mapKeepQuery').checked});
+      await request('start',formOptions());
       imported=false;active=true;report=undefined;resetNavigation();
+      void onResults();
     }catch(failure){notice=failure.message;}
     finally{busy=false;render();void refresh();}
   };
   $('mapStop').onclick=async()=>{try{await request('stop',{});notice='mapStopping';render();void refresh();}catch(failure){notice=failure.message;render();}};
   $('mapResume').onclick=async()=>{
+    if(report?.options.method==='browser'){$('mapMethod').value='browser';void prepareBrowser();return;}
     if(busy||active)return;busy=true;generation++;notice='';render();
-    try{await request('resume',{report,maxPages:Number($('mapLimit').value),concurrency:Number($('mapConcurrency').value)});imported=false;active=true;}
+    try{await request('resume',{...formOptions(),report});imported=false;active=true;}
     catch(failure){notice=failure.message;}finally{busy=false;render();void refresh();}
   };
   $('mapScope').onchange=render;
-  $('mapHistory').onchange=()=>{$('mapOpenHistory').disabled=active||busy||!$('mapHistory').value;};
+  $('mapHistory').onchange=()=>{$('mapOpenHistory').disabled=active||busy||!$('mapHistory').value;$('mapDeleteHistory').disabled=active||busy||!$('mapHistory').value;};
+  $('mapDeleteHistory').onclick=async()=>{
+    const entry=history.find(item=>item.id===$('mapHistory').value);if(!entry||active||busy)return;
+    if(!confirm(t('mapDeleteConfirm',{site:entry.root,date:new Date(entry.startedAt).toLocaleString(locale())})))return;
+    busy=true;generation++;render();
+    try{await request('delete',{id:entry.id});history=history.filter(item=>item.id!==entry.id);
+      if(report?.id===entry.id){report=undefined;imported=false;resetNavigation();graphKey=undefined;tableKey=undefined;}
+      comparison.remove(entry.id);notice='mapDeleted';void onResults();
+    }catch(failure){notice=failure.message;}
+    finally{busy=false;render();void refresh();}
+  };
   $('mapOpenHistory').onclick=async()=>{
     if(active||busy)return;busy=true;generation++;render();
     try{report=validateWebsiteMap((await request('report?'+new URLSearchParams({id:$('mapHistory').value}))).report);imported=true;resetNavigation();syncOptions();}
@@ -303,6 +359,7 @@ export function createWebsiteMapView({auditUrl}) {
   $('mapDownloadAll').onclick=()=>download(websiteMapCsv(report.pages),'text/csv;charset=utf-8','website-map-all.csv');
   $('mapDownloadFiltered').onclick=()=>download(websiteMapCsv(rows()),'text/csv;charset=utf-8','website-map-filtered.csv');
   $('mapDownloadJson').onclick=()=>download(JSON.stringify({...report,durationMs:duration()},null,2),'application/json','website-map.json');
+  $('mapAttachProject').onclick=async()=>{try{const value=report;await attachReport(value);report=value;imported=true;graphKey=undefined;tableKey=undefined;syncOptions();notice='projectAttached';render();}catch(failure){notice=failure.message;render();}};
   $('mapDownloadGraph').onclick=()=>{
     const svg=$('mapGraph').querySelector('svg').cloneNode(true);
     const style=document.createElementNS('http://www.w3.org/2000/svg','style');
@@ -314,6 +371,8 @@ export function createWebsiteMapView({auditUrl}) {
     render,
     connect(value){token=value;if(visible)void refresh();},
     show(value){visible=value;clearTimeout(timer);if(value){render();void refresh();}},
+    projectChanged(project){generation++;imported=false;report=undefined;history=[];graphKey=undefined;tableKey=undefined;notice='';$('mapBrowserCode').value='';$('mapBrowserStatus').textContent='';resetNavigation();comparison.clear();if(project)$('mapDomain').value=project.root;if(visible)void refresh();},
+    focusUrl(url){const path=new URL(url).pathname;start=path;selected=path;selectedOnly=true;trail=[];$('mapPathFilter').value=path;page=0;graphKey=undefined;render();},
     load(value){if(active)throw Error(t('mapBusy'));report=validateWebsiteMap(value);imported=true;resetNavigation();syncOptions();render();}
   };
 }

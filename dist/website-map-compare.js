@@ -9,6 +9,7 @@ export function createWebsiteMapComparison({current,readSaved,onIssue,download})
   let page=0;
   let filtered=[];
   let generation=0;
+  let cachedKey,cachedComparison;
   const choice=$('mapCompareSaved');
 
   function render(history=[]) {
@@ -24,7 +25,9 @@ export function createWebsiteMapComparison({current,readSaved,onIssue,download})
     $('mapCompareDownload').disabled=true;
     if(!baseline||!report)return;
     let comparison;
-    try{comparison=compareWebsiteMaps(baseline,report);}catch(failure){$('mapCompareNotice').textContent=t(failure.message);return;}
+    try{const key=JSON.stringify([baseline.id,baseline.revision,report.id,report.dataRevision??report.revision,report.status]);
+      if(cachedKey!==key){cachedComparison=compareWebsiteMaps(baseline,report);cachedKey=key;}comparison=cachedComparison;
+    }catch(failure){$('mapCompareNotice').textContent=t(failure.message);return;}
     $('mapCompareNotice').textContent=[t('mapCompareMeaning'),comparison.sameScope?'':t('mapCompareScopeWarning'),comparison.partial?t('mapComparePartial'):''].filter(Boolean).join(' ');
     $('mapCompareCounts').replaceChildren();
     for(const [type,total] of Object.entries(comparison.totals)){
@@ -63,7 +66,7 @@ export function createWebsiteMapComparison({current,readSaved,onIssue,download})
       if(file.size>64*1024*1024)throw Error('mapInvalidReport');
       const value=validateWebsiteMap(JSON.parse(await file.text()));
       if(request!==generation)return;
-      baseline=value;choice.value='';page=0;render(history);
+      baseline=value;cachedKey=undefined;choice.value='';page=0;render(history);
     }catch(failure){onIssue(failure.message==='mapInvalidReport'?failure.message:'mapInvalidReport');}
     finally{event.target.value='';}
   };
@@ -73,11 +76,11 @@ export function createWebsiteMapComparison({current,readSaved,onIssue,download})
     try{
       const report=await readSaved(choice.value);
       if(request!==generation)return;
-      baseline=validateWebsiteMap(report);page=0;render(history);
+      baseline=validateWebsiteMap(report);cachedKey=undefined;page=0;render(history);
     }catch(failure){onIssue(failure.message);}
   };
   $('mapCompareFilter').onchange=()=>{page=0;render(history);};
   $('mapComparePrevious').onclick=()=>{page--;render(history);};$('mapCompareNext').onclick=()=>{page++;render(history);};
   $('mapCompareDownload').onclick=()=>download(websiteComparisonCsv(filtered),'text/csv;charset=utf-8','website-map-comparison.csv');
-  return {render(items){history=items;render(history);}};
+  return {render(items){history=items;render(history);},clear(){generation++;baseline=undefined;cachedKey=undefined;page=0;},remove(id){if(baseline?.id===id){baseline=undefined;cachedKey=undefined;page=0;}}};
 }

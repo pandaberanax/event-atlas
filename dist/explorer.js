@@ -1,6 +1,7 @@
 import {t,locale} from './i18n.js';
 import {eventPlatform,platformName} from './platforms.js';
 import {eventInfo,groupEvents} from './event-model.js';
+import {eventAtUrl} from './project-model.js';
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=n=>Number(n||0).toLocaleString(locale());
@@ -9,6 +10,7 @@ export const groupKey=e=>JSON.stringify([eventPlatform(e),e.name,eventInfo(e).ca
 export function filteredEvents(state){return(state.report?.events||[]).filter(e=>{
  const info=eventInfo(e),element=info.contextElement;
  return(state.source==='all'||e.source===state.source||state.source==='sdk'&&e.source==='gtag')&&
+ (!state.urlFilter||eventAtUrl(e,state.urlFilter))&&
  (state.resultPlatform==='all'||eventPlatform(e)===state.resultPlatform)&&
  (!state.groupFilter||groupKey(e)===state.groupFilter)&&
  (state.category==='all'||state.category==='navigation'&&info.attribution==='navigation'||info.category===state.category)&&

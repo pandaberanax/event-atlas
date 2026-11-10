@@ -76,7 +76,7 @@ test('disk checkpoints restore interrupted work and resume keeps completed page 
     assert.ok(!site.hits.includes('/'));
     assert.ok(site.hits.includes('/pending'));
     assert.equal(audit.report.pages[0].provenanceVersion,'1.5.11');
-    assert.equal(audit.report.appVersion,'1.6.0');
+    assert.equal(audit.report.appVersion,'1.7.1');
     assert.ok(audit.report.durationMs>=40000&&audit.report.durationMs<55000);
     assert.ok(audit.report.checkpoint.savedAt);
     const restored=createWebsiteMap(directory);await restored.restore();

@@ -12,6 +12,8 @@ export function createWebsiteMapStore(root,{intervalMs=5000}={}) {
   let latest;
   let chain=Promise.resolve();
   let timer;
+  let inFlight;
+  let savedKey;
 
   async function read(id) {
     if(!validId(id))throw Error('mapInvalidReport');
@@ -27,9 +29,12 @@ export function createWebsiteMapStore(root,{intervalMs=5000}={}) {
     return report;
   }
   function flush() {
-    chain=chain.then(async()=>{
+    if(inFlight)return inFlight;
+    inFlight=chain=chain.then(async()=>{
       if(!latest)return;
       const current=latest;
+      const key=JSON.stringify([current.id,current.dataRevision??current.revision,current.status]);
+      if(key===savedKey)return;
       const report=structuredClone(current);
       if(report.status==='running'&&report.sessionStartedAt)report.durationMs=(report.previousDurationMs||0)+Date.now()-Date.parse(report.sessionStartedAt);
       report.checkpoint={savedAt:new Date().toISOString()};
@@ -38,11 +43,12 @@ export function createWebsiteMapStore(root,{intervalMs=5000}={}) {
       const next=[summary(report),...entries.filter(item=>item.id!==report.id)].slice(0,20);
       await atomic(path.join(root,'index.json'),{entries:next});
       entries=next;
+      savedKey=key;
       current.checkpoint=report.checkpoint;
       current.revision=(current.revision||0)+1;
     }).catch(failure=>{
       if(latest){latest.checkpoint={...latest.checkpoint,error:failure.message};latest.revision=(latest.revision||0)+1;}
-    });
+    }).finally(()=>{inFlight=undefined;});
     return chain;
   }
   return {
@@ -56,6 +62,17 @@ export function createWebsiteMapStore(root,{intervalMs=5000}={}) {
     },
     list:()=>entries,
     read,
+    async remove(id){
+      if(!validId(id))throw Error('mapInvalidReport');
+      await chain;
+      const next=entries.filter(item=>item.id!==id);
+      await fs.mkdir(root,{recursive:true});
+      await atomic(path.join(root,'index.json'),{entries:next});
+      try{await fs.unlink(path.join(root,id+'.json'));}
+      catch(error){if(error.code!=='ENOENT'){await atomic(path.join(root,'index.json'),{entries});throw error;}}
+      entries=next;
+      if(latest?.id===id){latest=undefined;savedKey=undefined;}
+    },
     begin(report){
       latest=report;
       clearInterval(timer);
@@ -63,7 +80,7 @@ export function createWebsiteMapStore(root,{intervalMs=5000}={}) {
       void flush();
     },
     observe(report){latest=report;},
-    async finish(report){latest=report;clearInterval(timer);await flush();},
+    async finish(report){latest=report;clearInterval(timer);await flush();await flush();},
     flush
   };
 }

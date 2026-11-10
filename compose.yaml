@@ -3,7 +3,7 @@ name: event-atlas-local
 services:
   event-atlas:
     build: .
-    image: event-atlas-local:1.6.0
+    image: event-atlas-local:1.7.1
     init: true
     shm_size: 1gb
     stop_grace_period: 15s

@@ -17,6 +17,7 @@ import {staticAssetCache} from './asset-cache.mjs';
 import {createRuntime,indexEvent,updatePage,currentSummary} from './report-runtime.mjs';
 import {validateResume,pageComplete} from './checkpoint.mjs';
 import {loadInitialPage,handleRoute,readableError} from './navigation.mjs';
+import {detectAccessIssue} from './manual/page-access.js';
 
 export function normalizeUrl(value, base, exact=false) {
   try {
@@ -143,10 +144,12 @@ export async function audit(options = {}, onUpdate = () => {}, signal) {
   const profile=SPEED_PROFILES[speed];
   const waitMs = Math.max(500, Math.min(10000, Number(options.waitMs) || profile.waitMs));
   const concurrency=scope==='single'?1:Math.max(1,Math.min(4,Math.floor(Number(options.concurrency)||profile.concurrency)));
+  const navigationTimeoutMs=Math.max(1000,Math.min(120000,Number(options.navigationTimeoutMs)||30000));
   const report = { schemaVersion: 1, appVersion:VERSION, revision:0, id: String(Date.now()), root, startedAt: iso(), finishedAt: null, durationMs:0, status: 'running', options: {maxPages, maxElements, waitMs, concurrency, speed, platforms, consent: options.consent || 'unchanged'}, pages: [], events: [], discovery: {urls: [], sitemaps: [], errors: []}, summary: {}, limitations: ['Mencakup URL publik yang ditemukan di sitemap dan link internal dalam origin yang sama; halaman tanpa link, login, iframe lintas origin, dan alur multi-langkah bisa belum tercakup.', 'Request analitik yang dikenali ditahan sebelum terkirim. Bukti network bukan konfirmasi penerimaan oleh platform.', 'Pemanggilan SDK dan dataLayer belum menjamin pengiriman event. SDK dalam modul privat, endpoint proxy, payload tidak dikenal, atau data terenkripsi dapat tidak terdeteksi.', 'Pemetaan tombol berdasarkan jendela waktu interaksi, bukan bukti sebab-akibat. Event asinkron bisa terkait ke aksi yang berdekatan.', 'Form tidak diisi/dikirim; tombol submit, transaksi, dan tindakan sensitif dilewati. Blocking request dan consent dapat mengubah perilaku situs.', 'Event dalam batch jaringan dipetakan ke waktu request dikirim, yang bisa berbeda dari waktu pemicu aslinya.'] };
   if(speed==='fast')report.limitations.push('Mode Cepat memakai waktu tunggu lebih pendek; event yang terlambat dapat terlewat.');
   const queued = new Set(); const visited = new Set(); const queue = [];
   report.options.scope=scope;
+  report.options.navigationTimeoutMs=navigationTimeoutMs;
   report.options.triggers=triggers;
   report.options.triggerTargets=previous ? previous.options.triggerTargets === true : supplied.triggers !== undefined;
   if (guardedProbes) {
@@ -387,6 +390,8 @@ export async function audit(options = {}, onUpdate = () => {}, signal) {
         const response = await page.goto(url, {waitUntil:'domcontentloaded',timeout});
         p.httpStatus = response?.status() || null; p.finalUrl = page.url();
         initialNavigation=false;
+        const accessIssue=detectAccessIssue({html:await page.content(),title:await page.title(),url:page.url(),status:p.httpStatus});
+        if(accessIssue){p.accessIssue=accessIssue;throw Error(accessIssue);}
         if(scope==='single')await page.evaluate(()=>{if(window.__atlasSingleScope){window.__atlasSingleScope.url=location.href;window.__atlasSingleScope.locked=true;}});
         if (p.httpStatus >= 400) throw new Error('HTTP ' + p.httpStatus);
         report.performance.navigationMs+=Date.now()-navigationStarted;
@@ -401,7 +406,7 @@ export async function audit(options = {}, onUpdate = () => {}, signal) {
       try {
         await configurePage(browser);
         p.navigationAttempts = [];
-        await loadInitialPage(protocol=>load(protocol==='http1'?15000:30000),async()=>{
+        await loadInitialPage(()=>load(navigationTimeoutMs),async()=>{
           const oldContext=context;
           context=null;
           await oldContext.close();

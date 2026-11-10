@@ -57,3 +57,4 @@ dd { margin: 0; font-size: 18px; line-height: 1.3; font-weight: 680; font-varian
   :root { color-scheme: dark; --bg: #14211b; --surface: #1d2c24; --text: #e1f0e3; --muted: #b4c8ba; --border: #445b4c; --accent: #2f7154; --soft: #273d30; --focus: #96c99e; }
   .stop { color: #f1aeaa; }
 }
+.map-capture h2{font-size:16px;margin-top:0}.map-capture>p{font-size:12px;line-height:1.7}.map-capture>label{display:grid;gap:6px;margin:14px 0;font-size:12px}.map-capture .map-auto{display:flex;align-items:center;gap:7px;font-size:12px}.map-auto input{width:auto}#mapCaptureStatus{color:#26714f}

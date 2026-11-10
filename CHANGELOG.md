@@ -1,5 +1,25 @@
 # Event Atlas — Changelog
 
+## 1.7.1 — 2026-11-10
+
+- Deteksi halaman verifikasi akses dan penolakan akses pada Website Map dan audit event, termasuk respons HTTP 200 yang berisi interstitial. Pengujian HTML otomatis dihentikan setelah verifikasi terdeteksi; URL sitemap tetap disimpan sebagai belum diperiksa.
+- Naikkan batas sitemap default dari 50 ke 500, dapat diatur sampai 2.000. Baca index tanpa pemotongan diam-diam, prioritaskan nama sitemap yang relevan dengan subfolder, dukung gzip dan redirect dalam origin yang sama, serta tampilkan jumlah berhasil/gagal/belum dibaca dan status parsial.
+- Tambahkan sitemap khusus, waktu navigasi 15/30/60 detik, dan waktu tunggu link JavaScript 0,9/2/5 detik. Website Map mencoba HTTP/1.1 satu kali ketika HTTP/2 gagal. Audit event memakai timeout yang dipilih juga pada percobaan HTTP/1.1.
+- Tambahkan pengambilan link dari Chrome pada extension: kode koneksi lokal 30 menit, kirim halaman sekali atau otomatis ketika halaman/link berubah selama DevTools terbuka. Cakupan website/subfolder, pengecualian, batas kedalaman dan URL tetap berlaku.
+- Gabungkan halaman yang dibaca dan link yang belum dikunjungi ke Website Map serta project, deduplikasi URL, pertahankan versi sumber lama, dan simpan hasil ke disk. Pengambilan DOM tidak mengonfirmasi status HTTP atau keberhasilan tracking.
+- Ekspor hanya URL/judul/link dalam origin yang sama dari tab; tidak mengekspor cookie, profil, HTML lengkap atau nilai form. Halaman verifikasi yang masih tampil tidak diterima sebagai hasil browser yang berhasil.
+- Pertahankan format laporan lama, project, dan histori. Token verifikasi sementara dihilangkan hanya dari penemuan URL baru. Reload/perbarui extension ke versi 1.7.1 untuk pengambilan link.
+
+## 1.7.0 — 2026-11-10
+
+- Project lokal mengelompokkan Website Map dan hasil audit per website, dengan pilihan project dan referensi hasil yang disimpan ke disk.
+- Inventaris URL dan detail halaman terpadu menghubungkan map, bukti event, parameter, filter URL persis di Event Explorer, dan rekaman yang sedang dibuka di Activity Timeline.
+- Hasil lama dan hasil impor mempertahankan versi engine asal. Simpan hasil website impor ke project yang sesuai melalui tombol khusus.
+- Getting started dan Changelog menyembunyikan formulir audit serta metrik laporan.
+- Riwayat scan menyediakan hapus hasil dengan konfirmasi, termasuk file scan dan hubungan map di project. Arsip audit event tetap tersimpan.
+- Website Map mengisi slot pekerja tanpa menunggu seluruh kelompok selesai, merangkum status sekali lintasan, menggabungkan autosave, menghindari kiriman status identik, dan mengurangi perhitungan ulang grafik, tabel, serta perbandingan.
+- Data project tersimpan lokal di `reports/projects/`. Integrasi penyimpanan sesi manual otomatis dan coverage gabungan dilanjutkan pada tahap berikutnya.
+
 ## 1.6.0 — 2026-11-10
 
 - Simpan progres Website Map ke disk setiap 5 detik dan saat scan selesai. Pulihkan hasil setelah restart, lanjutkan URL tersisa, dan buka 20 hasil terbaru melalui riwayat lokal.

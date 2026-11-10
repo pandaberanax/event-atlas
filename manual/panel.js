@@ -2,6 +2,7 @@ import {readPage} from './page-observer.js';
 import {createRecording} from './report.js';
 import {createLivePublisher} from './live.js';
 import {snapshotParameters} from './timeline-evidence.js';
+import {createMapCapture} from './map-capture.js';
 
 const labels = {
   title: ['Rekam manual', 'Manual recording'],
@@ -50,8 +51,10 @@ let status = 'idle';
 let session;
 let result;
 let linkState;
+const mapCapture=createMapCapture({inspect,language:()=>$('language').value});
 
 function render() {
+  mapCapture.render();
   const language = $('language').value;
   const translate = name => labels[name][language === 'en' ? 1 : 0];
   document.documentElement.lang = language;

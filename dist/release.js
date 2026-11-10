@@ -1,4 +1,4 @@
-export const VERSION = '1.6.0';
+export const VERSION = '1.7.1';
 export const RELEASE_DATE = '2026-11-10';
 export const SPEED_PROFILES = {
   balanced: {concurrency:2,waitMs:1800},
@@ -8,6 +8,14 @@ export const SPEED_PROFILES = {
 };
 export const CHANGELOG = [
  {version:VERSION,date:RELEASE_DATE,changes:{
+  id:['Deteksi halaman verifikasi akses dan penolakan akses pada Website Map serta audit event agar HTTP 200 tidak otomatis dianggap halaman asli.','Telusuri hingga 500 sitemap secara default, atur hingga 2.000 file, baca sitemap gzip dan redirect dalam origin yang sama, serta tampilkan cakupan parsial.','Tambahkan percobaan HTTP/1.1 untuk error HTTP/2 pada Website Map dan opsi waktu pemuatan serta waktu tunggu link JavaScript.','Ambil link dari tab Chrome melalui extension dengan kode koneksi lokal, filter subfolder, penggabungan URL, dan penyimpanan ke project.'],
+  en:['Detect access-verification and access-denied pages in Website Map and event audits so HTTP 200 alone does not imply real page content.','Discover up to 500 sitemaps by default, configure up to 2,000 files, read gzip and same-origin sitemap redirects, and show partial coverage.','Retry HTTP/2 navigation errors using HTTP/1.1 in Website Map and configure navigation and JavaScript link wait times.','Capture links from a Chrome tab through the extension using local pairing, subfolder filtering, URL merging, and project persistence.']
+ }},
+ {version:'1.7.0',date:'2026-11-10',changes:{
+  id:['Tambahkan project lokal untuk mengelompokkan Website Map dan hasil audit per website.','Buka detail halaman terpadu dari map, Pages & coverage, event, dan Activity Timeline; siapkan audit atau tampilkan event dengan filter URL persis.','Simpan hasil audit dan impor ke project sambil mempertahankan versi sumber serta parameter event.','Sembunyikan formulir audit di Getting started dan Changelog. Hapus hasil scan beserta file dan hubungan map di project melalui riwayat dengan konfirmasi.','Percepat antrean Website Map dengan slot pekerja yang langsung mengambil URL berikutnya, autosave tanpa antrean berulang, dan pembaruan grafik hanya saat diperlukan.'],
+  en:['Add local projects to group Website Map and audit results by website.','Open unified page details from maps, Pages & coverage, events, and Activity Timeline; prepare an audit or show events using an exact URL filter.','Save audit results and imports to projects while preserving source versions and event parameters.','Hide the audit form in Getting started and Changelog. Delete scan files and their project map references from history after confirmation.','Improve Website Map scheduling by refilling worker slots immediately, coalescing autosaves, and rebuilding the graph only when needed.']
+ }},
+ {version:'1.6.0',date:'2026-11-10',changes:{
   id:['Website Map menyimpan progres otomatis, memulihkan scan terputus, dan menyediakan riwayat hasil.','Atur subfolder, pengecualian, kedalaman pencarian, metode sitemap atau link, dan hingga 5 halaman bersamaan.','Gunakan Struktur URL, Path awal, dan Level dengan warna cabang kontras, zoom, geser, pencarian path, serta breadcrumb.','Buka rincian cakupan dan bandingkan dua hasil scan melalui riwayat atau JSON.'],
   en:['Website Map saves progress automatically, restores interrupted scans, and keeps scan history.','Configure subfolders, exclusions, scan depth, sitemap or link discovery, and up to 5 concurrent pages.','Explore URL Structure with Starting path and Level labels, contrasting branches, zoom, pan, path search, and breadcrumbs.','Inspect coverage groups and compare two scans from history or JSON.']
  }},
