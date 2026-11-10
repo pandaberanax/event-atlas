@@ -1,8 +1,0 @@
-{
-  "manifest_version": 3,
-  "name": "Event Atlas — Manual Recorder",
-  "version": "1.7.1",
-  "description": "Record analytics evidence while you manually use a tab in Chrome.",
-  "devtools_page": "devtools.html",
-  "host_permissions": ["http://127.0.0.1/*"]
-}
