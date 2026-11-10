@@ -1,0 +1,75 @@
+[data-view="map"] > :is(.page-heading,.audit-card,.report-strip,.metrics) { display:none; }
+.map-title { margin-bottom:22px; }
+.map-title h1 { font-size:32px; margin:8px 0; }
+.map-card { padding:22px; margin-bottom:20px; }
+.map-form-main { display:flex; gap:12px; align-items:end; flex-wrap:wrap; }
+.map-domain { flex:1 1 320px; }
+.map-card label { display:grid; gap:7px; font-size:12px; color:#496552; }
+.map-card input:not([type="checkbox"]),.map-card select { min-width:0; padding:10px 12px; border:1px solid var(--line); background:#fff; border-radius:7px; color:var(--ink,#1b3c30); }
+.map-options { display:flex; align-items:center; gap:16px 24px; flex-wrap:wrap; margin:18px 0; }
+.map-options .map-checkbox { display:flex; align-items:center; gap:8px; }
+.map-checkbox input { accent-color:#2a6b4c; }
+.map-help,.map-caption { font-size:12px; color:#61746a; line-height:1.7; }
+.map-summary { display:flex; gap:20px; flex-wrap:wrap; align-items:center; border-top:1px solid var(--line); padding-top:15px; font-size:12px; }
+.map-summary strong { color:#1b4934; }
+#mapRoot { overflow-wrap:anywhere; }
+.map-duration { margin-left:auto; font-variant-numeric:tabular-nums; }
+.map-duration output { font-weight:700; margin-left:8px; }
+.map-metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:12px; margin-bottom:20px; }
+.map-metrics button { padding:16px; text-align:left; font:inherit; color:inherit; }
+.map-metrics button:hover { border-color:#93b1db; }
+.map-metrics span { font-size:12px; color:#61746a; }
+.map-metrics strong { display:block; font-size:30px; margin-top:8px; color:#1d4935; }
+.map-graph-toolbar,.map-table-toolbar { display:flex; gap:12px 20px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
+.map-graph-toolbar h2 { font-size:18px; margin:0; }
+.map-graph-options { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+.map-graph { overflow:auto; min-height:200px; max-height:680px; padding-top:10px; cursor:grab; overscroll-behavior:contain; }
+.map-graph.dragging { cursor:grabbing; user-select:none; }
+.map-graph svg { display:block; max-width:none; }
+.map-flow { fill-opacity:.42; transition:fill-opacity .12s; }
+.map-flow.map-route { fill-opacity:.72; }
+.map-highlighting .map-flow:not(.map-highlight) { fill-opacity:.08; }
+.map-highlighting .map-flow.map-highlight { fill-opacity:.8; }
+.map-highlighting .map-graph-node:not(.map-highlight) { opacity:.35; }
+.map-column-heading { fill:#61746a; font-size:11px; letter-spacing:.7px; }
+.map-node-label { fill:#234c3a; font-size:12px; }
+.map-node-count { fill:#1c3f30; font-weight:700; font-size:11px; }
+.map-graph-node { cursor:pointer; outline:none; }
+.map-graph-node:hover .map-node-bar,.map-graph-node:focus .map-node-bar,.map-graph-node.selected .map-node-bar { stroke:#0f172a; stroke-width:1.5px; }
+.map-graph-node:focus text { text-decoration:underline; }
+.map-selection { padding:9px 12px; background:#f0f5e8; border-radius:6px; font-size:12px; overflow-wrap:anywhere; }
+.map-table-toolbar { padding:18px; border-bottom:1px solid var(--line); }
+.map-table-toolbar label { display:grid; gap:5px; font-size:11px; }
+.map-table-toolbar input,.map-table-toolbar select { max-width:250px; padding:8px; border:1px solid var(--line); border-radius:6px; background:white; }
+.map-table { min-width:1060px; width:100%; table-layout:auto; }
+.map-table th:nth-child(n) { width:auto; white-space:nowrap; letter-spacing:.3px; }
+.map-table[data-mode="pages"] td:nth-child(1) { min-width:250px; }
+.map-table[data-mode="pages"] td:nth-child(2) { min-width:160px; }
+.map-table[data-mode="pages"] td:nth-child(4) { min-width:130px; }
+.map-table[data-mode="pages"] td:nth-child(6) { min-width:110px; }
+.map-table[data-mode="pages"] td:nth-child(7) { min-width:135px; }
+.map-table[data-mode="folders"] { min-width:600px; }
+.map-table .text-button { white-space:nowrap; }
+.map-table td { font-size:12px; overflow-wrap:anywhere; max-width:360px; }
+.map-table td small { display:block; color:#8b643c; margin-top:5px; max-width:260px; }
+.map-url { color:#2c6c49; }
+.map-warnings { font-size:12px; overflow-wrap:anywhere; margin-bottom:20px; }
+.map-warnings ul { max-height:180px; overflow:auto; padding-left:20px; }
+.map-resume { display:flex; align-items:center; justify-content:space-between; gap:14px; background:#eef4ff; padding:12px; margin-top:12px; border-radius:7px; }
+.map-resume p { font-size:12px; }
+.map-graph-controls,.map-zoom { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-top:12px; }
+.map-zoom label { display:flex; align-items:center; gap:6px; }
+.map-zoom input[type="range"] { width:110px; padding:0; }
+.map-zoom output { min-width:40px; }
+.map-breadcrumb,.map-node-results { display:flex; gap:5px; flex-wrap:wrap; align-items:center; padding:8px 0; }
+.map-breadcrumb { font-size:12px; color:#64748b; }
+.map-node-results:empty { display:none; }
+.map-node-results .text-button { border:1px solid #dbe4ef; border-radius:5px; }
+.map-compare-counts { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0; }
+.map-compare-count { padding:8px 10px; background:#f3f6fb; border:1px solid #dbe4ef; border-radius:5px; color:#334155; font:inherit; font-size:11px; }
+.map-compare-filter { display:flex!important; align-items:center; gap:10px; margin-bottom:15px; }
+.map-compare-table td { min-width:140px; }
+.map-compare-table td:first-child { min-width:260px; }
+@media(max-width:700px) { .map-card{padding:16px}.map-metrics{gap:8px}.map-metrics article{padding:12px}.map-title h1{font-size:26px}.map-duration{margin-left:0} }
+.map-advanced{margin-top:12px}.map-advanced summary,.map-browser-help>summary{cursor:pointer;font-weight:600;font-size:13px}.map-browser-help>p{margin-top:12px}.map-browser-help li{font-size:12px;color:#526c60;line-height:1.7;margin:6px 0}.map-sitemap-field{flex:1;min-width:230px}.map-sitemap-field textarea{width:100%;border:1px solid #d5e0d2;border-radius:6px;padding:9px;font:inherit}.map-browser-help input{padding:9px;border:1px solid #d5e0d2;border-radius:6px}#mapBrowserStatus{overflow-wrap:anywhere}
+.map-metrics{grid-template-columns:repeat(4,minmax(0,1fr))}@media(max-width:850px){.map-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}

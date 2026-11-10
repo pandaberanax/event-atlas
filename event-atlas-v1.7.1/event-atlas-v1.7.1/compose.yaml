@@ -1,0 +1,23 @@
+name: event-atlas-local
+
+services:
+  event-atlas:
+    build: .
+    image: event-atlas-local:1.7.1
+    init: true
+    shm_size: 1gb
+    stop_grace_period: 15s
+    security_opt:
+      - seccomp=./docker/chromium-seccomp.json
+    ports:
+      - "127.0.0.1:4318:4318"
+    volumes:
+      - atlas-reports:/data
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4318/atlas.svg').then(r => { if (!r.ok) process.exitCode = 1 }).catch(() => { process.exitCode = 1 })"]
+      interval: 5s
+      timeout: 3s
+      retries: 8
+
+volumes:
+  atlas-reports:

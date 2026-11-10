@@ -1,0 +1,304 @@
+# Event Atlas
+
+Versi **1.7.1 lokal** · Development. Pilih Indonesia atau Inggris di kanan atas. Riwayat rilis tersedia di [CHANGELOG.md](CHANGELOG.md).
+
+Dibuat oleh **Steven Andrian** bersama **ChatGPT**.
+
+Tool audit event website lintas platform untuk menemukan event dan lokasi halaman/link/tombolnya. Masukkan domain yang ingin diperiksa; tidak ada domain bawaan atau laporan contoh yang dimuat otomatis.
+
+## Halaman verifikasi dan mapping melalui Chrome
+
+Untuk website yang memerlukan verifikasi akses atau halaman dinamis yang belum ditemukan oleh crawler:
+
+1. Ekstrak rilis baru ke folder baru. Ekspor hasil penting, hentikan engine lama, salin seluruh folder `reports/` bila ingin membawa project/histori, lalu jalankan versi baru. Jangan menimpa instalasi yang sedang mengaudit.
+2. Perbarui extension. Buka `chrome://extensions`, aktifkan Developer mode, lalu **Load unpacked** dan pilih folder `manual` dari paket **v1.7.1**. Jika memperbarui file di folder extension yang sama, klik **Reload**. Pastikan panel extension menampilkan v1.7.1. Hindari mengaktifkan dua salinan Event Atlas pada tab yang sama.
+3. Buat/pilih project website di dashboard. Pada **Website Map**, isi URL awal dan cakupan yang diinginkan, misalnya **Specific subfolder → `/tipsaman`**. Pilih **Ambil link dari Chrome → Hubungkan Chrome**, atau metode **Dari Chrome extension** lalu tombol Hubungkan Chrome.
+4. Salin **Kode koneksi Website Map**. Kode ini berbeda dari kode perekaman Activity Timeline dan berlaku 30 menit. Buat kode baru jika project berubah, server restart, atau kode kedaluwarsa.
+5. Buka website pada tab Chrome biasa dan selesaikan verifikasi yang ditampilkan hingga halaman normal terbuka. Buka **DevTools → Event Atlas**, cari bagian **Website Map · link halaman**, lalu tempel kode pada **Kode koneksi Website Map**.
+6. Klik **Kirim link halaman**. Tidak perlu menekan Mulai rekam event. URL halaman, judul, dan hyperlink pada origin yang sama dikirim langsung ke dashboard lokal. Filter subfolder, pengecualian, kedalaman, query, dan batas URL diterapkan di server.
+7. Opsional: centang **Ambil otomatis saat halaman/link berubah**. Biarkan DevTools terbuka dan jelajahi halaman sendiri. Panel memeriksa perubahan setiap 3 detik. Matikan pilihan tersebut untuk menghentikan pengambilan otomatis.
+8. Link yang ditemukan tanpa dikunjungi berstatus **Belum diperiksa**. Halaman yang dibaca dari tab ditandai dengan sumber pemeriksaan browser dan waktu pengambilan; HTTP ditampilkan kosong karena capture DOM tidak mengonfirmasi kode respons. Parameter event tetap direkam melalui fitur perekaman event yang terpisah.
+
+Pengambilan link tidak membuka halaman atau mengeklik verifikasi secara otomatis. Cookie, profil browser, nilai form dan HTML lengkap tidak dikirim. URL dapat mengandung query yang terlihat pada tab; gunakan pilihan pemisahan query sesuai kebutuhan. Pengiriman hanya ke engine lokal pada `127.0.0.1:4318`, mengikuti alamat yang dipakai extension rekaman sebelumnya. Seluruh subfolder tetap bergantung pada link yang tampil di halaman yang dikunjungi; menu tersembunyi, iframe lintas origin, route hash dan halaman tanpa link dapat memerlukan penelusuran tambahan.
+
+**Scan otomatis:** batas sitemap default **500**, dapat diubah sampai **2.000** pada opsi pencarian. Tambahkan URL sitemap khusus pada origin yang sama jika diketahui. Sitemap gzip dan hingga lima redirect dalam origin yang sama didukung. Jumlah sitemap berhasil, gagal dan belum dibaca ditampilkan terpisah. Naikkan batas waktu navigasi ke **60 detik** atau waktu tunggu link JavaScript ke **2/5 detik** untuk halaman lambat. Penambahan waktu tunggu tidak menjamin verifikasi akses dapat diselesaikan oleh crawler. Ketika interstitial dikenali, hasil ditandai **Parsial / Perlu browser manual** dan pengujian HTML berikutnya dihentikan; URL sitemap yang sudah ditemukan tetap tersedia. Laporan lama mempertahankan hasil asal; jalankan scan ulang untuk memakai deteksi baru.
+
+For protected or dynamic pages, select a website project and configure Website Map scope, then choose **Connect Chrome**. Update/reload the extension from this release's `manual` folder, open the site normally, and complete any displayed verification yourself. In **DevTools → Event Atlas → Website Map · page links**, paste the Website Map pairing code and click **Send page links**, or enable automatic capture while browsing. The code expires after 30 minutes and is distinct from the Activity Timeline code. Only the current URL, title and same-origin hyperlinks are sent to the local engine; cookies, profiles, form values and full HTML are not sent. Links are scoped and deduplicated, unvisited URLs remain not inspected, and DOM capture does not confirm HTTP status or tracking delivery. Capture results are saved with the current project. Automatic scanning now supports 500 sitemap files by default (up to 2,000), custom sitemap seeds, gzip, same-origin redirects, HTTP/1.1 fallback on HTTP/2 navigation errors, and configurable navigation/JavaScript waits.
+
+## Project dan hubungan antar-workspace
+
+1. Pilih **+ Project baru** di sidebar. Isi nama project dan URL website, lalu klik **Buat project**. Project memisahkan hasil berdasarkan website; satu project juga boleh dipakai untuk host utama dan alias `www` website yang sama.
+2. **Ringkasan project** menampilkan inventaris URL dari Website Map dan hasil audit yang disimpan. Jalankan map atau audit seperti biasa. Hasil baru terhubung ke project aktif; URL dari website lain memerlukan project yang sesuai.
+3. Klik URL untuk membuka **Detail halaman terpadu**: posisi path, sumber map/audit, HTTP atau redirect, rincian pengujian, nama event, platform, parameter, dan versi engine sumber. Pilih sumber pengujian untuk berpindah antar-hasil lama dan baru. Preview menampilkan maksimal 50 pengamatan; Event Explorer menampilkan seluruh hasil dengan paginasi.
+4. Gunakan **Lihat event URL ini** untuk membuka hasil sumber di Event Explorer dengan filter URL persis. **Siapkan audit URL** mengisi formulir single URL; periksa opsi lalu mulai audit. **Lihat path di map** membuka struktur URL sumber. **Lihat aktivitas URL ini** menyaring sesi live atau rekaman yang sedang terbuka di Activity Timeline.
+5. Buka detail halaman terpadu juga melalui tombol pada tabel Website Map, rincian Pages & coverage, rincian event, dan lokasi aktivitas website di timeline.
+6. Hasil audit otomatis diarsipkan saat selesai/dihentikan. Progres audit aktif tetap memakai checkpoint yang ada. Gunakan **Simpan hasil ke project** pada hasil JSON website yang diimpor; nama event, parameter dan versi engine sumber dipertahankan. Impor JSON dari website lain setelah memilih/membuat project yang cocok.
+7. Metadata, pilihan project, dan arsip audit/import disimpan di `reports/projects/`; file map tetap berada di `reports/website-map/`. Project dan hasil dipulihkan setelah restart. Hasil lokal dari versi sebelumnya dikelompokkan berdasarkan website saat upgrade. Selesaikan atau hentikan scan/audit sebelum mengganti project.
+
+Tahap pertama berfokus pada project website dan navigasi URL antar-workspace. Timeline hanya menampilkan sesi live atau rekaman yang sedang dibuka; pengarsipan sesi manual otomatis lintas sesi, coverage gabungan, tracking plan, dan project Android akan dikembangkan terpisah. URL dengan query dan fragmen SPA tetap dibedakan pada tautan event/timeline; Website Map tetap mengikuti struktur path dan aturan normalisasi scan.
+
+**Upgrade:** ekspor hasil penting dan selesaikan/hentikan proses lama terlebih dahulu. Ekstrak versi baru ke folder baru. Untuk membawa seluruh histori lokal, salin folder `reports/` dari instalasi lama setelah server lama berhenti. Jalankan `npm install` dan `npx playwright install chromium` pada instalasi baru, lalu `npm start`. Jangan menjalankan dua engine pada port yang sama. Docker memakai volume laporan yang sudah ada; lakukan rebuild image untuk memakai versi baru.
+
+Projects group website maps and audit results locally. Create a project in the sidebar, scan/audit its website, and open any URL for unified page details. Jump to exact URL event results, prepare a single-URL audit, inspect its map path, or filter the currently opened timeline. Save imported website reports explicitly to the matching project. Project data lives under `reports/projects/`, with map files under `reports/website-map/`; copy the entire `reports/` directory after stopping the old engine when upgrading. Existing result versions and event parameters are preserved. Automatic persistence of manual sessions, combined coverage, tracking plans, and Android projects are outside this first phase.
+
+## Website Map
+
+1. Jalankan Event Atlas lalu pilih **Website Map** di sidebar kiri. Masukkan domain atau URL awal.
+2. Pilih **Sitemap saja**, **Sitemap + link internal**, atau **Dengan JavaScript**. Mode sitemap membuat inventaris URL tanpa membuka halaman HTML. Pilih 1–5 halaman bersamaan untuk metode yang memuat halaman. Aktifkan **Pisahkan URL dengan query parameter** bila variasi query perlu dicatat.
+3. Pilih **Seluruh domain** atau **Subfolder tertentu**. Untuk subfolder, isi path seperti `/produk`. Kecualikan path dengan daftar dipisahkan koma. **Kedalaman pencarian maksimum** dihitung dari domain, dengan `/` pada level 0. Path yang dikecualikan dan path di luar batas tidak masuk antrean.
+4. Klik **Mulai mapping**. Pencarian mengikuti robots.txt. Klik kartu ringkasan untuk membuka URL berhasil, redirect, gagal, dilewati, atau belum diperiksa beserta alasannya. Pada metode sitemap saja, status belum diperiksa menunjukkan URL yang baru ditemukan dari sitemap.
+5. Buka grafik **Struktur URL**. Pilih **Mulai dari path**, lalu ikuti kolom **Path awal → Level +1 → Level +2**. Klik node untuk menyaring tabel, buka **+ lainnya**, gunakan zoom atau **Sesuaikan ke layar**, seret latar grafik untuk menggeser, cari path, dan gunakan breadcrumb untuk kembali ke induk. Angka serta ketebalan garis mewakili jumlah URL.
+6. Gunakan tabel **Daftar URL** atau **Ringkasan path**. **Kedalaman tampilan maksimum** menyaring grafik dan tabel hasil. **Siapkan audit URL** mengisi formulir audit event untuk URL pilihan. Unduh CSV semua atau terfilter, grafik SVG, atau laporan JSON. Buka JSON kembali melalui **Impor hasil**.
+7. Progres disimpan otomatis setiap 5 detik dan ketika selesai ke `reports/website-map/`. Setelah server dimulai ulang, hasil terbaru dimuat. Klik **Lanjutkan scan** untuk melanjutkan antrean dan mencoba ulang URL gagal. Halaman selesai mempertahankan versi asal dan durasi mengecualikan waktu jeda. Kamu dapat menaikkan batas URL dan mengganti jumlah halaman bersamaan saat resume.
+8. Pilih salah satu dari 20 hasil terbaru pada **Riwayat scan di perangkat ini**, atau buka JSON dari perangkat lain. Untuk berpindah ke folder instalasi baru, impor JSON lalu lanjutkan scan, atau salin folder `reports/website-map/` setelah proses lama selesai. Jika memakai Docker, data disimpan di volume laporan yang sama.
+9. Buka **Bandingkan hasil scan**, lalu pilih hasil sebelumnya dari riwayat atau impor JSON pembanding. Hasil yang sedang ditampilkan menjadi scan saat ini. Filter URL baru ditemukan, tidak ditemukan lagi, berubah status, atau berubah tujuan redirect, lalu unduh CSV perbandingan.
+10. Untuk menghapus scan, pilih hasil pada **Riwayat scan di perangkat ini**, klik **Hapus scan**, lalu periksa nama website dan tanggal pada konfirmasi. Penghapusan menghapus file hasil scan dan hubungan map tersebut di project; arsip hasil audit event dipertahankan. Hapus tidak tersedia ketika scan berjalan. File JSON yang sudah diunduh terpisah tetap berada di folder unduhan.
+
+Slot scan yang kosong langsung mengambil URL berikutnya hingga batas paralel yang dipilih. Autosave menggabungkan permintaan yang bersamaan dan melewati data yang belum berubah. Grafik tidak dibangun ulang ketika hanya status penyimpanan yang berubah. Kecepatan aktual tetap bergantung pada website, mode JavaScript, jaringan, dan komputer.
+
+Grafik mengikuti susunan path URL. Folder perantara bisa menjadi kelompok virtual meskipun tidak memiliki halaman sendiri. Cakupan mengikuti URL yang ditemukan dan batas scan. Catatan pencarian menampilkan sitemap yang gagal dibaca. Halaman tanpa link, halaman login, dan route berbasis hash memerlukan penelusuran tambahan. Parameter kampanye dibuang saat normalisasi. Mode JavaScript memakai waktu tunggu default 0,9 detik per halaman, dapat diubah ke 2 atau 5 detik. Perbandingan menampilkan perbedaan penemuan URL. URL yang tidak ditemukan lagi dapat disebabkan batas, cakupan, atau scan parsial. Perubahan cakupan dan hasil parsial diberi catatan di dashboard.
+
+Open **Website Map**, choose a starting URL, scope, exclusions, maximum scan depth and 1–5 concurrent pages. Choose **Sitemap only**, **Sitemap + internal links**, or **With JavaScript**. Explore **URL Structure** using **Starting path** and **Level** columns, branch colors, zoom, pan, path search, and breadcrumbs. Coverage cards filter the URL table. Display depth filters results independently of scan depth. Progress is saved every 5 seconds and when finished under `reports/website-map/`. Restart the engine and choose **Resume scan** to continue unfinished URLs and retry failures. Completed pages retain their engine version and total duration excludes downtime. The latest 20 scans are available in local history. Export/import JSON to move a scan between installations, or copy the saved report directory after stopping the old process. Compare the current report against a saved scan or baseline JSON, then export the comparison as CSV. Different scopes and partial results are flagged. Unlinked, authenticated, and hash-based routes need additional discovery.
+
+## Audit Android dengan APK klien
+
+1. Pasang [Android SDK Platform-Tools](https://developer.android.com/tools/releases/platform-tools) atau Android Studio di laptop. Jalankan Event Atlas dari folder rilis dengan `npm start`.
+2. Nyalakan emulator Android atau sambungkan HP tes dengan **USB debugging** dan izinkan koneksi saat diminta. Jalankan `adb devices` untuk melihat perangkat yang siap. Pasang APK dengan `adb install "path/ke/client.apk"` pada satu perangkat yang terhubung, lalu buka aplikasinya. Jika ada beberapa perangkat, pilih target dengan `adb -s SERIAL install "path/ke/client.apk"`. APK dipasang apa adanya.
+3. Buka dashboard **Activity Timeline → Sumber → Audit Android (ADB)**. Klik **Cari perangkat**, lalu pilih perangkat dan package aplikasi. Jika perlu, centang opsi debug atau diagnostik sebelum klik **Mulai rekam**.
+4. Lakukan aksi di HP. Event GA4/Firebase dan MoEngage yang teramati akan muncul otomatis dengan pratinjau parameter. Klik **Lihat rincian** untuk membuka semua parameter yang tersimpan. **Penanda layar** dan **Penanda tap** bersifat opsional dan membantu memberi konteks.
+5. Klik **Berhenti → Unduh JSON** untuk menyimpan sesi. Gunakan **Impor hasil** di dashboard untuk membuka laporan Android lagi.
+
+- **Aktifkan Firebase DebugView** mengatur mode debug bagi package pilihan di perangkat tes. Untuk memeriksa event di Firebase, buka **DebugView** pada proyek aplikasi yang bisa kamu akses. Mode ini dapat mempercepat pengiriman event uji ke proyek itu. [Firebase DebugView](https://firebase.google.com/docs/analytics/debugview#android)
+- **Simpan log diagnostik Android** menyimpan pesan mentah dari tag `FA`, `FA-SVC`, `GoogleTagManager`, dan `MoEngage` yang ditulis oleh proses aplikasi pilihan. Buka **Filter aktivitas → Diagnostik** untuk melihat pesan tambahan, termasuk potongan yang ditulis terpisah. Rincian event juga menampilkan pesan mentahnya. Pesan mentah dan JSON bisa berisi data sensitif. [Diagnostik Tag Manager Android](https://developers.google.com/tag-platform/tag-manager/android/v5)
+
+Gunakan **Platform** untuk menyaring **GA4 / Firebase**, **MoEngage**, atau diagnostik **Google Tag Manager**, baik saat merekam maupun setelah impor JSON. Perekam membaca event Firebase `Logging event (FE)` dan notifikasi MoEngage `Core_ActionNotifier onEventTracked()`. Konteks tap memakai kedekatan waktu. [Panduan log Firebase](https://firebase.google.com/docs/analytics/android/events)
+
+Jika parameter lama terpotong oleh Event Atlas, rekam ulang dengan versi ini. Jika Android sudah memotong pesan per entri, gunakan build QA yang menulis payload per bagian atau ekspor debug dari aplikasi. Event Atlas menyimpan bagian yang terbaca. Satu sesi dapat menyimpan hingga 5.000 baris atau 24 MiB data. [Batas entri log Android](https://android.googlesource.com/platform/system/logging/+/refs/heads/master/liblog/include/log/log.h)
+
+Event Atlas mengaktifkan `log.tag.FA` dan properti debug yang dipilih untuk sesi itu, lalu memulihkannya selama perangkat masih bisa diakses. Jika perangkat putus saat pemulihan, nyalakan ulang perangkat tes untuk mereset properti sementara. Jika proses app berganti, mulai sesi baru. Mode perekaman Android berjalan lewat `npm start` pada host yang terhubung ke perangkat. Paket Docker dapat membuka laporan Android melalui impor JSON.
+
+For Android Audit, install Android SDK Platform-Tools, open the client APK on an authorized test phone or emulator, and run Event Atlas on the host with `npm start`. In **Activity Timeline**, select **Android Audit (ADB)** and pick the device and app. Optionally enable **Firebase DebugView** or **Keep Android diagnostic logs** before recording. Open **View details** to see all saved parameters and any raw message, or choose **Activity filter → Diagnostic** to see additional log entries. **Download JSON** to save or reimport the session. If the original entry was cut off by Android, use a QA build that logs the payload in parts or exports it separately.
+
+## Jalankan lewat Docker Desktop
+
+1. Pasang dan buka Docker Desktop untuk [Mac](https://docs.docker.com/desktop/setup/install/mac-install/) atau [Windows](https://docs.docker.com/desktop/setup/install/windows-install/). Tunggu sampai Docker berjalan.
+2. Ekstrak ZIP dan buka Terminal atau PowerShell di folder yang berisi `compose.yaml`. Jika Event Atlas lama memakai port 4318, simpan atau ekspor sesi yang aktif sebelum menghentikan proses lama.
+3. Jalankan:
+
+   ```sh
+   docker compose up -d --build --wait
+   ```
+
+   Build pertama mengunduh Node.js, Playwright, dan Chromium. Dependensi tersebut dipasang di image Docker.
+4. Buka [dashboard lokal](http://127.0.0.1:4318/). Untuk rekam manual, buka **Activity Timeline** dan salin kode koneksi ke extension Event Atlas di Chrome pada komputer yang sama. Extension tetap dipasang di Chrome dari folder `manual`.
+5. Saat selesai, jalankan `docker compose stop`. Untuk membuka lagi, jalankan `docker compose up -d --wait` dari folder yang sama.
+
+Port dashboard diterbitkan pada `127.0.0.1:4318`. Volume Docker menyimpan laporan audit otomatis. Ekspor JSON untuk menyimpan sesi Activity Timeline sebelum menghentikan container. Jika dashboard gagal terbuka, lihat `docker compose ps` dan `docker compose logs --tail=50`.
+
+On Docker Desktop, run `docker compose up -d --build --wait` from the extracted release folder, then open the dashboard at `http://127.0.0.1:4318/`. The Chrome extension still runs in the host browser. Use `docker compose stop` when finished. Automated reports use a named volume, and manual sessions can be saved by exporting JSON.
+
+Chromium berjalan sebagai pengguna non-root. Profil seccomp di folder `docker` memakai profil dasar Moby v0.2.3 dengan izin `clone`, `setns`, dan `unshare` untuk sandbox Chromium sesuai panduan Playwright. [Profil dasar Moby](https://github.com/moby/profiles/blob/seccomp/v0.2.3/seccomp/default.json) · [Panduan Playwright](https://playwright.dev/docs/docker#crawling-and-scraping)
+
+## Rekam manual di Chrome
+
+Di dashboard, buka **Activity Timeline → Cara menggunakan** untuk melihat langkah pemasangan, koneksi, dan penggunaan perekam.
+
+1. Ekstrak ZIP rilis. Di Chrome, buka `chrome://extensions`, aktifkan **Developer mode**, klik **Load unpacked**, lalu pilih folder `manual`.
+2. Buka situs di Chrome. Buka DevTools dengan **Option + Command + I** di Mac atau **Ctrl + Shift + I** di Windows. Pilih tab **Event Atlas**. Cari di menu **»** jika tab tersembunyi.
+3. Untuk mode **Real-time ke dashboard**, jalankan `npm start` dari folder rilis dan buka **Activity Timeline** di dashboard lokal `http://127.0.0.1:4318/`. Salin kode koneksi ke panel extension, lalu klik **Mulai rekam**. Klik, scroll, submit, navigasi, dan event yang teramati masuk ke timeline saat sesi berjalan.
+4. Pilih **Rekam ke JSON** jika ingin merekam tanpa dashboard aktif. **Jeda** dan **Lanjutkan** tersedia di kedua mode. Aksi saat jeda tidak ikut direkam.
+5. Setelah **Berhenti**, kamu bisa **Unduh JSON** dari kedua mode. Pilih **Impor hasil** pada dashboard untuk melihat detail di **Event Explorer → Observasi lengkap**, atau pilih sumber **Impor JSON** di **Activity Timeline**. Simpan file untuk arsip karena dashboard lokal menyimpan satu sesi real-time terbaru di memori.
+
+Di **Activity Timeline**, gunakan **Filter aktivitas** untuk memilih satu jenis aksi atau event. Kolom **Platform** menampilkan platform yang teramati pada baris event. Klik **Lihat detail** untuk melihat parameter, sumber bukti, Measurement ID, endpoint, status HTTP, atau selector saat tersedia. Detail juga tersedia untuk impor v1.5.3 jika observasi terkait tersimpan di file. Untuk detail real-time, gunakan dashboard dan extension v1.5.4. Pratinjau parameter real-time dibatasi dan nilai untuk kunci kredensial umum disamarkan.
+
+Perekam membaca entri yang masih ada di `dataLayer` dan request yang selesai saat sesi berlangsung. Request yang dikenali mencakup GA4, MoEngage, Braze, dan Mixpanel. Saat kamu klik, scroll, atau mengirim form, browser tetap menjalankan aksi dan request seperti biasa. Rekaman mengikuti URL yang terlihat di satu tab pada origin awal, termasuk perubahan URL SPA yang teramati. Keluar dari origin mengakhiri sesi. Klik yang langsung mengganti dokumen, entri antrean yang cepat dihapus, dan request yang belum selesai saat sesi berhenti dapat terlewat. Konteks klik didasarkan pada waktu, dan status HTTP menunjukkan respons yang teramati. Unduh JSON sebelum menutup DevTools. URL dan parameter event dapat memuat data situs.
+
+Scroll yang berurutan pada target yang sama dapat digabung. Panel mencatat aksi submit yang terlihat browser dan mengabaikan isi input serta kata sandi. JSON tetap bisa berisi URL dan parameter event yang berasal dari situs. Rekaman page load dimulai setelah kamu klik **Mulai rekam** lalu muat ulang halaman.
+
+The **Manual Recording** panel observes activity and analytics in one Chrome tab. Copy the pairing code from the local dashboard's **Activity Timeline** and select **Live to dashboard** for updates during the session. **Record to JSON** works independently. Both modes support **Pause**, **Resume**, and **Download JSON**. Import a saved file to review its timeline and event evidence. Out-of-origin navigation ends the session. Continuous scrolls may be grouped, and click associations use timing.
+
+Use **Filter activity** and the **Platform** column to navigate the timeline. **View details** shows parameters and available evidence metadata. Imported v1.5.3 timelines can show details when the matching observation is in the file. Live details require the v1.5.4 dashboard and extension. Live previews are size-limited and mask values for common credential keys.
+
+## Pemicu dan cakupan v1.5
+
+Pilih pemicu sebelum memulai audit. Page load, klik, dan impression dipilih saat pertama dibuka. Impression menguji hingga enam elemen bertanda seperti `data-impression` atau `data-product-id` di bawah viewport, lalu menjalankan scroll umum. Event saat elemen masuk viewport dikaitkan berdasarkan waktu uji.
+
+Link keluar dan percobaan submit dapat dipilih terpisah. Selama aksi, mesin menahan navigasi dan request serta memblokir WebSocket untuk sesi audit itu. Form diuji dengan nilai awal. Rincian membedakan klik tombol dari percobaan submit yang teramati. Submit berhasil serta login dan logout perlu pengujian manual.
+
+Buka rincian halaman untuk memfilter hasil tiap pemicu. Di **Halaman & cakupan**, pilih **Unduh semua halaman** atau **Unduh hasil filter** untuk menyimpan URL, status HTTP, jumlah elemen, dan alasan pemeriksaan ke CSV. Batas klik tersedia pada 6, 10, 12, 20, 50, dan hingga 200, dengan pilihan awal 12.
+
+**Ekspres** memakai hingga empat worker untuk audit seluruh website. Waktu observasinya 0,9 detik per tahap, sama seperti Cepat. Kecepatan aktual bergantung pada situs dan komputer. Audit satu URL memakai satu worker.
+
+CLI menerima `--speed express` dan `--triggers page_load,click,impression,outbound,form_submit,authentication`. Pilih subset pemicu sesuai audit yang ingin dijalankan. Resume menggunakan pemicu dari laporan asal.
+
+In English, **Triggers to test** lets you select page loads, clicks, impressions, outbound links, submit attempts, and manual authentication inventory. Impression testing combines up to six marked below-viewport elements with a general scroll. Outbound and submit probes hold requests during the action. Successful form delivery and authentication require manual testing. **Pages & coverage** exports all rows or the active filter to CSV. Express uses up to four workers with the same 0.9-second observation window as Fast.
+
+## Optimasi dan hasil v1.4
+
+- **Cache aset statis** aktif secara bawaan. Cache berada di memori setiap konteks halaman, maksimal 16 MB, dan hanya memakai respons publik GET script/CSS/font/gambar yang masih segar menurut `max-age`, Date, dan Age. Respons private/no-store/no-cache, autentikasi, Set-Cookie, dan variasi sensitif dilewati. Dokumen HTML, API, dan request analitik tidak disimpan. Cache tidak dibagikan antar konteks halaman.
+- **Statistik bertahap** memperbarui halaman yang berubah dan indeks event per halaman; mesin tidak menghitung ulang seluruh riwayat aksi untuk setiap klik. Dashboard menerima delta halaman dan mempertahankan hasil worker lain.
+- **Muat ulang setiap klik** tetap bawaan. Pilihan **Pemakaian ulang eksperimental** pada Optimasi audit dapat menghindari reload setelah tombol yang tidak mengubah DOM, URL, cookie, storage, atau isian. Keadaan JavaScript tersembunyi masih bisa berubah. Ini dapat mengubah hasil; pakai mode isolasi untuk validasi. Setiap aksi/event baru menyimpan mode isolasinya.
+- **ETA** adalah perkiraan kasar dari durasi hingga 20 halaman terakhir, jumlah worker, dan sisa halaman sampai batas audit yang dipilih. Pola halaman dan penemuan URL baru dapat mengubah estimasi.
+- **Performa & alasan elemen dilewati** memisahkan elemen tidak terlihat, batas klik, form/sensitif/link dikecualikan, nonaktif, dan gagal. Penghitung performa adalah untuk sesi saat ini; durasi total dan hasil dapat mencakup sesi sebelumnya.
+
+Event Explorer kini dimulai dengan ringkasan per **platform + nama + kategori**. Buka satu grup untuk observasi lengkap, gunakan filter kategori/bukti/platform, atau cari URL dan elemen. Jumlah **lokasi uji** menunjukkan konteks pengujian, bukan jumlah tombol dengan tracking terkonfirmasi. CSV selalu memuat observasi yang sesuai filter, bukan baris ringkasan; JSON memuat seluruh laporan.
+
+Pada observasi baru, `originPage` adalah halaman asal aksi, `eventPage` adalah URL dari payload atau frame saat event teramati. Kategori nama halaman yang dikenali (misalnya `gtm_pageview`) ditampilkan sebagai event halaman; nama custom yang tidak dikenali tidak dipaksakan menjadi event halaman. `relationship` membedakan tingkat halaman, setelah navigasi, pemanggilan sinkron di handler klik, hubungan waktu setelah klik, dan waktu pengiriman batch. Pemanggilan di handler klik adalah bukti konteks eksekusi, bukan bukti penerimaan platform. Request jaringan tetap hanya bukti request teramati.
+
+Laporan lama ditampilkan dengan label bukti versi lama. Kategori/hubungan untuk tampilan dapat diturunkan dari nama dan URL lama, tetapi tidak menambahkan bukti handler baru atau mengubah observasi asli. Event halaman/navigasi menampilkan elemen sebelumnya hanya sebagai konteks.
+
+## Autosave dan melanjutkan audit
+
+Mesin lokal menyimpan checkpoint ke `reports/checkpoints/` setiap 15 detik dan saat audit berakhir. File pointer dan JSON ditulis secara atomik; halaman yang berubah ditulis per file. Setelah restart, checkpoint terbaru dimuat; pemulihan tidak otomatis menjalankan browser. Klik **Lanjutkan audit** untuk melanjutkan. Checkpoint terbaru dapat kehilangan progres sejak penyimpanan terakhir; halaman yang belum selesai diulang.
+
+Untuk berpindah ke v1.5 tanpa menunggu antrean penuh:
+
+1. Ekspor **JSON** dari audit lama sekarang sebagai cadangan. Gunakan **Hentikan audit**, tunggu sampai status berhenti, lalu ekspor JSON lagi agar progres terakhir ikut tersimpan.
+2. Ekstrak v1.5 ke folder terpisah. Tutup mesin lama setelah audit berhenti, kemudian jalankan **Mulai-Event-Atlas.cmd** dari folder baru.
+3. Pilih **Impor hasil** dan JSON tadi. Naikkan batas halaman jika sudah tercapai, lalu pilih **Lanjutkan audit**.
+
+Halaman selesai dipertahankan; halaman terputus atau gagal diulang dan observasi parsialnya diganti, agar tidak menggandakan hasil. Resume mempertahankan domain, cakupan, platform, consent, dan batas klik asal. Mengubah pilihan platform di form tidak menambahkan platform baru ke halaman yang telah selesai. Untuk cakupan platform berbeda, jalankan audit baru.
+
+Setiap observasi mempertahankan `provenanceVersion`. Laporan gabungan menggunakan versi mesin terbaru dan mencatat `resumedFrom`; `startedAt` mempertahankan waktu mulai awal, `sessionStartedAt` menandai sesi baru, dan `previousDurationMs` mengecualikan waktu jeda. Kecepatan, cache, dan isolasi dapat dipilih untuk sisa antrean. Hasil v1.3 yang hanya merekam dataLayer tetap hanya mencakup dataLayer pada halaman lamanya.
+
+Jika autosave gagal, dashboard menampilkan alasannya; ekspor JSON secara manual. Checkpoint dan ekspor disimpan lokal, tidak diunggah ke Sites. Jangan hapus folder checkpoint sebelum mengekspor hasil yang dibutuhkan. Pilihan `EVENT_ATLAS_REPORT_DIR` dapat memisahkan direktori penyimpanan untuk pengujian.
+
+Contoh CLI:
+
+```sh
+node cli.mjs --resume reports/latest/audit.json --pages 3000 --speed fast
+node cli.mjs --url https://example.com --reset smart --speed fast
+node cli.mjs --url https://example.com --no-cache
+```
+
+### Pengukuran kecepatan
+
+Uji lokal terkontrol: satu halaman asal, 4 klik, satu worker, jendela observasi 500 ms, script publik diberi delay buatan 400 ms. Hasil: isolasi tanpa cache **10,804 detik**, isolasi dengan cache **8,767 detik**, pemakaian ulang + cache **7,066 detik**. Delapan observasi dengan nama, platform, kategori, hubungan, selector, dan lokasi yang sama ditemukan pada ketiga mode; request analitik dan mutasi uji tetap tertahan. Aset `no-store` tetap diminta ulang. Ini pengukuran satu skenario lokal, bukan estimasi atau jaminan percepatan website nyata. Jalankan `node tests/benchmark.mjs` untuk mengulang; hasil berada di `reports/benchmark-v1.4.0.json`.
+
+### English release guide
+
+v1.4 adds per-page HTTP-aware static caching, incremental statistics, rough ETA, skip breakdowns, grouped event exploration, origin/event page details, 15-second local checkpoints, and page-level resume. Isolated reloads remain the default; experimental page reuse can miss hidden JavaScript-state changes. All original observations remain available, and CSV exports follow active filters.
+
+To upgrade an active v1.3 audit: export JSON, stop and wait, export the final partial JSON, then launch v1.4 from a separate folder after closing the old engine. Import that JSON, raise the page limit if necessary, and choose Resume audit. Completed pages keep their evidence and engine provenance; unfinished/failed pages repeat. Resume preserves platforms, scope, consent, and click limits. Run a new audit to change platform coverage. Total duration excludes time between sessions. Automatic recovery loads the most recent checkpoint but requires an explicit Resume click; progress since the last save may be lost. Export JSON manually if autosave reports an error.
+
+The controlled local benchmark above found identical event/location evidence across the three configurations. Its artificial asset delay and 500 ms observation windows are test conditions, not a claim about production speed or completeness.
+
+## Cakupan audit (v1.3)
+
+- **Seluruh website**: perilaku crawl sebelumnya; mulai dari URL input, temukan sitemap dan link internal pada origin yang sama, hingga batas halaman yang dipilih.
+- **Satu URL saja**: hanya satu target audit. Sitemap tidak diambil dan link tidak ditambahkan ke antrean. Batas halaman otomatis 1 dan mesin memakai satu worker. Pilihan kecepatan hanya mengatur waktu observasi, bukan menambah halaman paralel.
+- Mode satu URL mempertahankan query dan fragment input, termasuk parameter tracking yang dapat memengaruhi perilaku event. Redirect awal pada origin yang sama tetap diikuti dan URL akhirnya dicatat. Robots.txt tetap diperiksa; ini bukan halaman tambahan yang diaudit.
+- Tombol dan link yang memenuhi aturan pengujian tetap diklik. Navigasi ke halaman lain ditahan melalui default link, History API, popup, dan routing dokumen. Rincian elemen mencatat navigasi yang ditahan. Satu URL dapat dimuat ulang beberapa kali sebelum klik agar setiap pengujian dimulai dari keadaan halaman awal.
+- Resource halaman (script, gambar, API, atau iframe) tetap dapat diminta saat rendering sesuai aturan jaringan mesin. Mode ini membatasi target halaman audit, bukan berarti hanya ada satu HTTP request. Menahan navigasi dapat mengubah perilaku aplikasi; event yang memerlukan halaman tujuan atau journey lanjut tidak diuji sampai selesai.
+- `report.options.scope` menyimpan `site` atau `single`; laporan lama tanpa field tersebut dianggap memakai mode website.
+
+Contoh satu halaman:
+
+```sh
+npm run audit -- --url "https://example.com/products/detail?plan=A" --scope single --platforms ga4,dataLayer,moengage,braze,mixpanel --elements 12
+```
+
+## Pilihan platform (v1.2)
+
+Pilih satu atau beberapa platform sebelum menjalankan audit. Pilihan disimpan pada `report.options.platforms`; setiap observasi memiliki `platform` dan jenis `source`. Pilihan membatasi bukti yang dicatat, bukan menonaktifkan SDK situs.
+
+| Platform | Pemanggilan browser | Payload jaringan yang dikenali |
+| --- | --- | --- |
+| GA4 | Perintah event gtag melalui antrean dataLayer | Payload collect GA4 v2 |
+| dataLayer | Custom event pada antrean dataLayer | Tidak dianggap bukti pengiriman ke platform |
+| MoEngage | `Moengage.trackEvent`, `track_event`, dan notifikasi `MOE_AUTOMATED_EVENTS` | JSON compact `e/a` serta batch `viewsInfo/ EVENT_ACTION / EVENT_ATTRS` pada host MoEngage |
+| Braze | `braze.logCustomEvent`, `logPurchase`; alias `appboy` | Custom-event/purchase pada batch `/api/v3/data` |
+| Mixpanel | `mixpanel.track`, termasuk named instance setelah `init` | `/track` pada host Mixpanel; JSON, form data, base64, query GET, dan gzip/deflate |
+
+SDK dimuat dan dijalankan oleh situs. Mesin tidak memasang, menginisialisasi, atau memaksa flush SDK, tidak meminta push permission, dan tidak mengidentifikasi pengguna. Method wrapper menjaga `this`, return value, dan exception SDK. Pemanggilan SDK yang diamati bisa ditolak atau diantrekan SDK; bukan bukti platform menerima event.
+
+SDK di modul privat dapat tidak terlihat oleh hook global. Jaringan masih dapat teramati bila endpoint/payload dikenali. Proxy custom, payload terenkripsi/tidak dikenal, batch yang belum terkirim dalam jendela uji, dan event server-side dapat terlewat. Request pada endpoint yang dikenal tetapi payloadnya tidak terbaca dicatat sebagai catatan halaman, bukan event yang ditebak.
+
+Request event yang dikenali ditahan, termasuk jika platformnya tidak dipilih untuk pencatatan. Resource/telemetry lain tidak dijamin seluruhnya terblokir. Batch diberi `attribution: batch-time`, karena waktu pengiriman bisa berbeda dari pemicu asli; jangan menganggap tombol yang sedang diuji sebagai pemicu pasti semua event dalam batch.
+
+Filter hasil berdasarkan platform terpisah dari pilihan pra-audit. CSV/JSON menyertakan platform, sumber, metode SDK bila ada, dan atribusi. Metrik **Nama event** menghitung kombinasi platform+nama unik dari semua bukti, sehingga SDK dan request dengan nama yang sama pada platform sama dihitung sekali. dataLayer tidak otomatis digabung sebagai event GA4 atau platform lain.
+
+## Mulai
+
+Di Windows, ekstrak ZIP lalu klik dua kali **Mulai-Event-Atlas.cmd** dan buka http://127.0.0.1:4318/. Launcher dapat memakai runtime Codex yang sudah ada di komputer ini; jika tidak tersedia, diperlukan Node.js 20+. Biarkan jendela launcher terbuka selama audit.
+
+Untuk setup manual atau platform lain, butuh Node.js 20+ dan koneksi internet. Di folder ini jalankan:
+
+```sh
+npm install
+npx playwright install chromium
+npm start
+```
+
+Buka http://127.0.0.1:4318/. Jika Chrome sudah terpasang, mesin dapat memakainya ketika Chromium belum tersedia. Untuk port lain, atur environment variable PORT sebelum menjalankan server.
+
+Pilih batas halaman dan klik per halaman sesuai ukuran website, lalu periksa sisa URL setelah scan. Audit dengan banyak interaksi bisa berjalan berjam-jam. Tombol Hentikan menyimpan hasil parsial setelah operasi browser saat ini selesai; bukan berhenti seketika.
+
+### Kecepatan, timer, dan pemeriksaan
+
+- **Seimbang**: 2 halaman bersamaan; waktu observasi 1,8 detik per tahap. Ini pilihan awal untuk audit baru.
+- **Cepat**: 3 halaman bersamaan; 0,9 detik per tahap. Event yang terlambat bisa terlewat dan beban CPU/jaringan meningkat.
+- **Mendalam**: 1 halaman; 3,5 detik per tahap. Tetap tidak menjamin semua event terlambat ditemukan.
+- Waktu tunggu berlaku setelah buka halaman, scroll, dan klik. Secara bawaan setiap klik didahului pemuatan ulang. Opsi pemakaian ulang eksperimental dijelaskan di atas; mengurangi jumlah klik juga mengurangi cakupan interaksi.
+- Timer dimulai sebelum persiapan browser/penemuan sitemap, diperbarui setiap detik, dan berhenti saat mesin menyelesaikan audit. JSON menyimpan `appVersion`, `durationMs`, `startedAt`, dan `finishedAt`. Refresh tidak memulai ulang timer.
+- Klik **Perlu diperiksa** untuk memfilter halaman dengan kegagalan navigasi, halaman dilewati, error JavaScript, atau klik gagal. Klik **Lihat rincian** untuk pesan error, consent, selector, dan alasan setiap elemen dilewati. Elemen yang sengaja dilewati bukan bukti tracking rusak; gunakan filter **Elemen dilewati** untuk menilai cakupan.
+- Riwayat perubahan dapat dibuka di sidebar. Versi laporan tetap menunjukkan versi mesin yang menghasilkan laporan tersebut.
+
+### Memperbarui instalasi
+
+Jangan mengganti instalasi saat audit masih berjalan. Ekspor JSON dan gunakan alur upgrade/resume di atas, atau tunggu audit selesai. Browser Chrome yang menampilkan dashboard bukan mesin crawl: membuka tab Chrome lain atau mengganti bahasa tidak mempercepat audit yang sedang berjalan.
+
+## Hasil
+
+- `reports/latest/audit.json`: seluruh observasi, halaman, elemen, tindakan, error, sitemap, URL ditemukan, batas audit.
+- `reports/latest/events.csv`: nama event, sumber, halaman, pemicu, teks elemen, selector, region, measurement ID, parameter, jumlah, dan metode atribusi.
+- Dashboard dapat memfilter event, melihat detail parameter, menyalin selector, melihat cakupan, dan mengimpor/mengekspor JSON/CSV.
+- CSV dari dashboard mengikuti filter aktif. JSON selalu berisi seluruh laporan.
+
+## Jalankan dari terminal
+
+```sh
+npm run audit -- --url https://example.com --platforms ga4,dataLayer,moengage,braze,mixpanel --pages 100 --elements 12 --speed balanced --out reports/website
+```
+
+`--elements 0` untuk audit page load + scroll saja. `--consent accept` mencoba tombol dengan nama persis “accept all”, “allow all”, “terima semua”, “setujui semua”, atau “saya setuju”. Default membiarkan consent seperti situs. Mesin tidak memalsukan persetujuan pada dataLayer.
+
+Gunakan `--workers 1|2|3` dan `--wait 500..10000` untuk mengganti jumlah halaman paralel dan waktu observasi (ms) secara eksplisit. Pengaturan ini berlaku untuk audit baru.
+
+## Arti bukti
+
+- **Request GA4**: payload `v=2`, event name `en`, dan measurement ID `tid=G-...` terdeteksi. Request tersebut ditahan dengan respons lokal HTTP 204. Ini percobaan pengiriman, bukan konfirmasi penerimaan atau pemrosesan di properti GA4.
+- **gtag**: perintah event teramati pada antrean gtag. Bisa tidak menghasilkan request karena consent atau konfigurasi.
+- **dataLayer**: custom event di antrean. Bisa untuk layanan lain, belum tentu GA4. Jangan menghitung semua dataLayer event sebagai event GA4 terkonfirmasi.
+- Pemanggilan SDK/gtag, dataLayer, dan request yang terkait tetap dipisahkan menurut sumber. Ringkasan **Nama event** menghitung platform+nama unik dari semua bukti; satu nama pada SDK dan jaringan platform yang sama dihitung sekali.
+- Lokasi klik adalah hubungan waktu saat satu elemen diuji. Event timer/asinkron dapat ikut tertangkap; validasikan lewat parameter. Tidak ada jaminan sebab-akibat.
+
+## Cakupan dan batas
+
+Sitemap (termasuk sitemap index, default 500 dan maksimum 2.000 file) dan link internal ditelusuri pada origin yang sama persis. Robots.txt untuk user-agent `*` dibaca; aturan khusus user-agent dan crawl-delay belum diproses. URL tracking dinormalisasi; query fungsional dipertahankan. Tidak ada login atau browser profile pribadi.
+
+Audit mengamati page load, scroll, dan klik elemen yang terlihat sampai batas yang dipilih. Halaman dimuat ulang sebelum setiap klik untuk mengurangi pengaruh interaksi sebelumnya. Tidak ada input form. Elemen form/submit, tombol kontak/transaksi/destruktif, link luar origin, dan unduhan dilewati. Label sensitif memakai heuristik; evaluasi kebutuhan dan jalankan di staging bila perlu. Request event yang dikenali diberi respons lokal; request non-GET/HEAD/OPTIONS lainnya diblokir, sehingga alur yang memerlukan POST tidak diuji penuh. Navigasi lintas origin diblokir.
+
+Halaman tanpa link/sitemap, login, iframe lintas origin, menu tersembunyi, video, journey bertahap, server-side events, dan event turunan dalam properti GA4 dapat tidak tercakup. Tidak adanya observasi tidak membuktikan event tidak ada. Custom proxy yang tidak memakai payload GA4 standar dapat lolos dari pendeteksian. Sebagian resource GET pihak ketiga tetap dapat mengirim telemetry; jangan menganggap seluruh traffic analytics terblokir.
+
+Status `completed` berarti antrean URL yang diketahui telah habis, `limited` berarti batas halaman tercapai, dan `stopped` berarti dihentikan. Periksa juga halaman gagal, elemen dilewati, dan error penemuan sitemap. Waktu laporan tersimpan dalam UTC ISO 8601; dashboard menampilkan waktu lokal browser.
+
+Dashboard online bersifat pembaca laporan. Browser audit harus berjalan lokal; dashboard tidak mengklaim bisa memindai situs lintas domain dari JavaScript biasa.
+
+## Pengujian
+
+```sh
+npm test
+```
+
+Tes integrasi memakai situs fixture lokal, termasuk event page load/klik, GA4 batch POST, pergantian push dataLayer oleh GTM, error halaman, dan request yang tidak boleh diteruskan.
+
+Referensi resmi:
+
+- GA4: https://developers.google.com/analytics/devguides/collection/ga4/events
+- MoEngage: https://www.moengage.com/docs/developer-guide/web-sdk/data-tracking/web-sdk-events-tracking
+- Braze: https://www.braze.com/docs/developer_guide/analytics/logging_events?tab=web
+- Mixpanel: https://docs.mixpanel.com/docs/tracking-methods/sdks/javascript dan https://docs.mixpanel.com/reference/track-event
+- Playwright: https://playwright.dev/docs/network
+
+Parser MoEngage dan Braze ditinjau terhadap source distribusi vendor @moengage/web-sdk 2.81.1 (loader SDK 2.81.01) dan @braze/web-sdk 7.1.0. Pengujian memakai fixture lokal, bukan klaim audit langsung pada semua variasi integrasi SDK.

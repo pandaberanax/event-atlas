@@ -1,0 +1,26 @@
+[data-view="guide"] > :is(.audit-card,.report-strip,.metrics,.page-heading),
+[data-view="changes"] > :is(.audit-card,.report-strip,.metrics,.page-heading),
+[data-view="project"] > :is(.audit-card,.report-strip,.metrics,.page-heading){display:none}
+.project-picker{padding:15px 7px 20px;border-block:1px solid #35564a;margin:0 0 15px;min-width:0}
+.project-picker label{display:block;font-size:10px;color:#b6d2bd;margin-bottom:8px}
+.project-picker select{width:100%;border:1px solid #547565;background:#214d3e;color:#f5faef;border-radius:6px;padding:9px 7px;font-size:12px}
+.project-picker button{color:#c9e7b2;font-size:11px;padding:9px 0 0;background:none;border:0}
+.project-picker small{display:block;font-size:10px;color:#a5c1af;overflow-wrap:anywhere;margin-top:7px}
+.project-title{margin:10px 0 26px}.project-title p{max-width:720px}.project-tools{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.project-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:20px 0}
+.project-metrics article{padding:18px}.project-metrics span{font-size:12px;color:var(--muted)}.project-metrics strong{display:block;font-size:28px;margin-top:6px}
+.project-inventory .table-toolbar{gap:12px;flex-wrap:wrap}.project-inventory .search{max-width:none;flex:1;min-width:220px}.project-inventory table{width:100%;border-collapse:collapse;min-width:750px}
+.project-inventory td,.project-inventory th{padding:14px 16px;text-align:left;border-bottom:1px solid var(--line);font-size:12px}.project-inventory th{font-size:10px;color:var(--muted)}
+.project-inventory td:first-child{max-width:450px;overflow-wrap:anywhere}.project-inventory td:first-child button{text-align:left;white-space:normal;overflow-wrap:anywhere}
+.project-runs{display:grid;gap:8px;margin:16px 0 24px}.project-run{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 18px;border:1px solid var(--line);background:#fff;border-radius:8px}.project-run small{display:block;margin-top:4px;color:var(--muted)}
+.project-modal{border:1px solid #cbdacf;border-radius:12px;padding:25px;width:min(560px,calc(100% - 30px));height:fit-content;max-height:90vh;margin:auto;color:var(--ink)}
+.project-modal::backdrop,.project-page-dialog::backdrop{background:#112e2566}.project-modal label{display:grid;gap:8px;margin-top:18px;font-size:12px}.project-modal input{width:100%;padding:11px;border:1px solid var(--line);border-radius:6px}.project-modal .project-tools{justify-content:flex-end}
+.project-page-dialog{width:min(1050px,calc(100% - 32px));height:fit-content;max-height:90vh;margin:auto;border:1px solid #cad9ca;border-radius:12px;padding:26px;color:var(--ink);overflow:auto}
+.project-dialog-heading{display:flex;gap:15px;align-items:start;justify-content:space-between;margin-bottom:12px}.project-dialog-heading h2{font-size:22px}.project-page-url{overflow-wrap:anywhere;font-size:13px;margin-bottom:12px}
+.project-page-dialog select{max-width:100%;padding:10px;border:1px solid var(--line);border-radius:6px}.project-page-dialog pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:none;font-size:12px;background:#f4f7f2;padding:14px;border-radius:7px;color:#254d3a}
+.project-page-dialog details{padding:14px 0;border-bottom:1px solid var(--line)}.project-page-dialog summary{cursor:pointer;font-size:13px;overflow-wrap:anywhere}.project-source-meta{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;margin:15px 0;color:var(--muted)}
+.project-url-filter{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:12px 0;padding:10px 14px;background:#edf4e5;border-radius:6px;font-size:12px;overflow-wrap:anywhere}
+.project-empty{padding:24px}.project-notice:empty{display:none}.project-select-field{display:grid;gap:8px;font-size:12px;margin-top:20px}
+.sidebar nav{overflow-y:auto;min-height:200px}.sidebar .sidebar-bottom{padding-top:12px}.sidebar .tiny-chart{height:25px;margin-bottom:10px}.sidebar .brand small{margin-bottom:20px}.sidebar .nav{padding-block:11px}
+@media(max-width:900px){.project-picker{padding:8px 0}.project-picker label,.project-picker small{display:none}.project-picker select{font-size:10px;padding:6px 0}.project-picker button{font-size:9px}.project-metrics{gap:8px}.project-page-dialog{padding:18px}}
+@media(max-height:800px){.sidebar-bottom .tiny-chart,.sidebar-bottom strong,.sidebar-bottom p{display:none}.sidebar-bottom .version{margin-top:5px}.sidebar{padding-block:22px}}
